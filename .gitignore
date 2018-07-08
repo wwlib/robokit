@@ -1,0 +1,8 @@
+node_modules
+dist
+hide
+yarn.lock
+yarn-error.log
+package-lock.json
+data/config.json
+hide

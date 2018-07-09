@@ -1,5 +1,5 @@
 {
-  "name": "electron-quick-start-typescript",
+  "name": "electron-typescript-robokit",
   "version": "1.0.0",
   "description": "A minimal Electron application written with Typescript",
   "scripts": {

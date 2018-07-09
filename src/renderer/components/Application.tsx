@@ -3,6 +3,7 @@ import * as ReactBootstrap from "react-bootstrap";
 
 import MicrosoftSpeechController from '../microsoft/MicrosoftSpeechController';
 import WwMusicController from '../ww/WwMusicController';
+import SnowboyController from '../snowboy/SnowboyController';
 
 // const {shell} = require('electron').remote;
 // const wwLogo = require('../../../assets/ww-logo-40.png')
@@ -33,6 +34,9 @@ export default class Application extends React.Component < ApplicationProps, App
             case 'startMusic':
                 const musicController = new WwMusicController();
                 break;
+            case 'startSnowboy':
+                const snowboyController = new SnowboyController();
+                break;
         }
     }
 
@@ -43,6 +47,8 @@ export default class Application extends React.Component < ApplicationProps, App
                     onClick={this.onButtonClicked.bind(this, "startSpeech")}>Start Speech</ReactBootstrap.Button>
                 <ReactBootstrap.Button bsStyle={'info'} key={"startMusic"} style = {{width: 100}}
                     onClick={this.onButtonClicked.bind(this, "startMusic")}>Start Music</ReactBootstrap.Button>
+                <ReactBootstrap.Button bsStyle={'info'} key={"startSnowboy"} style = {{width: 100}}
+                    onClick={this.onButtonClicked.bind(this, "startSnowboy")}>Start Snowboy</ReactBootstrap.Button>
             </div>
         );
     }

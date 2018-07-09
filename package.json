@@ -6,7 +6,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "yarn build && electron ./dist/main/main.js"
+    "start": "tsc -v && yarn build && electron ./dist/main/main.js"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",
   "keywords": [

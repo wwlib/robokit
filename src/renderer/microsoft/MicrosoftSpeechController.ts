@@ -80,6 +80,7 @@ export default class MicrosoftSpeechController {
         })
         .On(() => {
             // The request succeeded. Nothing to do here.
+            console.log(`The request succeeded. Nothing to do here.`);
         },
         (error: any) => {
             console.log(error);
@@ -103,6 +104,7 @@ export default class MicrosoftSpeechController {
 
     UpdateStatus(status: string) {
         // statusDiv.innerHTML = status;
+        console.log(`UpdateStatus: status:`, status);
     }
 
     UpdateRecognizedHypothesis(text: string, append: boolean=true) {

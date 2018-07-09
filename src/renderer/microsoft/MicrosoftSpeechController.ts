@@ -32,6 +32,7 @@ export default class MicrosoftSpeechController {
     }
 
     RecognizerStart() {
+        console.log(`MicrosoftSpeechController: RecognizerStart:`);
         this.recognizer.Recognize((event: any) => {
             /*
                 Alternative syntax for typescript devs.
@@ -81,7 +82,7 @@ export default class MicrosoftSpeechController {
             // The request succeeded. Nothing to do here.
         },
         (error: any) => {
-            console.error(error);
+            console.log(error);
         });
 
 
@@ -97,6 +98,7 @@ export default class MicrosoftSpeechController {
             this.RecognizerStop(this.recognizer);
         }
         this.recognizer = this.RecognizerSetup(SDK.RecognitionMode.Interactive, 'en-US', SDK.SpeechResultFormat['Simple'],config.Microsoft.BingSTTSubscriptionKey);
+        console.log(`MicrosoftSpeechController: Setup:`, this.recognizer);
     }
 
     UpdateStatus(status: string) {

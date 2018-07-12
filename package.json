@@ -7,6 +7,7 @@
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "tsc -v && yarn build && electron ./dist/main/main.js",
+    "restart": "electron ./dist/main/main.js",
     "rebuild": "electron-rebuild -f -w snowboy"
   },
   "repository": "https://github.com/electron/electron-quick-start-typescript",

@@ -5,7 +5,7 @@ const path = require('path');
 const findRoot = require('find-root');
 
 const root = findRoot(__dirname);
-const modelPath: string = path.resolve(root, 'resources/models/snowboy.umdl');
+const modelPath: string = path.resolve(root, 'resources/models/HeyRobo.pmdl'); // snowboy.umdl
 const commonResPath: string = path.resolve(root, 'resources/common.res');
 console.log(modelPath);
 console.log(commonResPath);
@@ -52,6 +52,7 @@ export default class SnowboyController {
 		  // data after the hotword.
 		  console.log(buffer);
 		  console.log('hotword', index, hotword);
+		  record.stop();
 		});
 
 		this.mic = record.start({

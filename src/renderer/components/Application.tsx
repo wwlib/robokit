@@ -30,6 +30,13 @@ export default class Application extends React.Component < ApplicationProps, App
         switch (action) {
             case 'startSpeech':
                 const microsoftSpeechController = new MicrosoftSpeechController();
+                microsoftSpeechController.RecognizerStart()
+                    .then((result: string) => {
+                        console.log(`RESULT: ${result}`);
+                    })
+                    .catch((error: any) => {
+                        console.log(error);
+                    });
                 break;
             case 'startMusic':
                 const musicController = new WwMusicController();

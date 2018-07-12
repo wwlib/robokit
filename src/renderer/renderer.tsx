@@ -4,6 +4,7 @@ import Application from './components/Application';
 import STTController from './STTController';
 import AsyncToken from './AsyncToken';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
+import BingSpeechApiController from './microsoft/BingSpeechApiController';
 import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
 
@@ -18,16 +19,9 @@ render(
 */
 
 function startRecognizer() {
-	const microsoftSpeechController: STTController = new MicrosoftSpeechController();
-	let t: AsyncToken = microsoftSpeechController.RecognizerStart();
-
-    t.complete
-        .then((result: string) => {
-	        console.log(`RESULT: ${result}`);
-	    })
-	    .catch((error: any) => {
-	        console.log(error);
-            });
+	// const speechController: STTController = new MicrosoftSpeechController();
+    const speechController: STTController = new BingSpeechApiController();
+	let t: AsyncToken = speechController.RecognizerStart({recordDuration: 3000});
 
     t.on('Listening', () => {
         console.log(`renderer: startRecognizer: on Listening`);
@@ -40,6 +34,14 @@ function startRecognizer() {
     t.on('RecognitionEndedEvent', () => {
         console.log(`renderer: startRecognizer: on RecognitionEndedEvent`);
     });
+
+    t.complete
+        .then((result: string) => {
+            console.log(`RESULT: ${result}`);
+        })
+        .catch((error: any) => {
+            console.log(error);
+            });
 
 }
 

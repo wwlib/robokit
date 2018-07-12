@@ -11,8 +11,8 @@
     "rebuild": "electron-rebuild -f -w snowboy"
   },
   "repository": {
-      "type": "git",
-      "url": "https://github.com/wwlib/electron-typescript-robokit"
+    "type": "git",
+    "url": "https://github.com/wwlib/electron-typescript-robokit"
   },
   "keywords": [
     "Electron",
@@ -36,6 +36,7 @@
     "typescript": "^2.8.3"
   },
   "dependencies": {
+    "bingspeech-api-client": "^2.5.0",
     "microsoft-speech-browser-sdk": "^0.0.12",
     "nan": "^2.10.0",
     "node-record-lpcm16": "^0.3.0",

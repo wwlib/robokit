@@ -1,3 +1,6 @@
+
+import STTController from '../STTController';
+import AsyncToken from '../AsyncToken';
 import * as SDK from 'microsoft-speech-browser-sdk';
 const findRoot = require('find-root');
 
@@ -5,11 +8,12 @@ const root = findRoot(__dirname);
 const configFile = root + '/data/config.json';
 const config: any = require(configFile);
 
-export default class MicrosoftSpeechController {
+export default class MicrosoftSpeechController extends STTController{
 
     public recognizer: SDK.Recognizer = null;
 
     constructor() {
+        super();
         this.Setup();
         // this.RecognizerStart();
     }
@@ -38,9 +42,10 @@ export default class MicrosoftSpeechController {
         return SDK.CreateRecognizer(recognizerConfig, authentication);
     }
 
-    RecognizerStart(): Promise<string> {
+    RecognizerStart(): AsyncToken {
         console.log(`MicrosoftSpeechController: RecognizerStart:`);
-        return new Promise<string>((resolve: any, reject: any) => {
+        let token = new AsyncToken();
+        token.complete = new Promise<string>((resolve: any, reject: any) => {
             this.recognizer.Recognize((event: any) => {
                 /*
                     Alternative syntax for typescript devs.
@@ -51,10 +56,12 @@ export default class MicrosoftSpeechController {
                         this.UpdateStatus("Initializing");
                         break;
                     case "ListeningStartedEvent" :
-                        this.UpdateStatus("Listening");
+                        // this.UpdateStatus("Listening");
+                        token.emit('Listening');
                         break;
                     case "RecognitionStartedEvent" :
-                        this.UpdateStatus("Listening_Recognizing");
+                        // this.UpdateStatus("Listening_Recognizing");
+                        token.emit('Listening_Recognizing');
                         break;
                     case "SpeechStartDetectedEvent" :
                         this.UpdateStatus("Listening_DetectedSpeech_Recognizing");
@@ -80,9 +87,10 @@ export default class MicrosoftSpeechController {
                         this.UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
                         break;
                     case "RecognitionEndedEvent" :
-                        this.OnComplete();
-                        this.UpdateStatus("Idle");
-                        console.log(JSON.stringify(event)); // Debug information
+                        // this.OnComplete();
+                        // this.UpdateStatus("Idle");
+                        token.emit('RecognitionEndedEvent');
+                        // console.log(JSON.stringify(event)); // Debug information
                         this.RecognizerStop();
                         resolve(JSON.stringify(event));
                         break;
@@ -97,6 +105,7 @@ export default class MicrosoftSpeechController {
                 reject(error);
             });
         });
+        return token;
     }
 
     RecognizerStop() {
@@ -130,8 +139,8 @@ export default class MicrosoftSpeechController {
         // phraseDiv.innerHTML += json + "\n";
     }
 
-    OnComplete() {
-        // startBtn.disabled = false;
-        // stopBtn.disabled = true;
-    }
+    // OnComplete() {
+    //     // startBtn.disabled = false;
+    //     // stopBtn.disabled = true;
+    // }
 }

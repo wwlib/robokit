@@ -4,6 +4,8 @@ import * as ReactBootstrap from "react-bootstrap";
 import MicrosoftSpeechController from '../microsoft/MicrosoftSpeechController';
 import WwMusicController from '../ww/WwMusicController';
 import SnowboyController from '../snowboy/SnowboyController';
+import STTController from '../STTController';
+import AsyncToken from '../AsyncToken';
 
 // const {shell} = require('electron').remote;
 // const wwLogo = require('../../../assets/ww-logo-40.png')
@@ -29,8 +31,9 @@ export default class Application extends React.Component < ApplicationProps, App
         // console.log(`onButtonClicked: ${action}`);
         switch (action) {
             case 'startSpeech':
-                const microsoftSpeechController = new MicrosoftSpeechController();
-                microsoftSpeechController.RecognizerStart()
+                const microsoftSpeechController: STTController = new MicrosoftSpeechController();
+                let t: AsyncToken = microsoftSpeechController.RecognizerStart();
+                t.complete
                     .then((result: string) => {
                         console.log(`RESULT: ${result}`);
                     })

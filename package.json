@@ -1,7 +1,7 @@
 {
   "name": "electron-typescript-robokit",
-  "version": "1.0.0",
-  "description": "A minimal Electron application written with Typescript",
+  "version": "0.0.1",
+  "description": "A minimal Electron 'robot' written with Typescript. Runs on a Raspberry Pi",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -10,29 +10,32 @@
     "restart": "electron ./dist/main/main.js",
     "rebuild": "electron-rebuild -f -w snowboy"
   },
-  "repository": "https://github.com/electron/electron-quick-start-typescript",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/wwlib/electron-typescript-robokit"
+  },
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo",
+    "robot",
+    "raspberry",
+    "pi",
     "typescript"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "Andrew Rapo",
+  "copyright": "Copyright (c) 2018 Andrew Rapo. All Rights Reserved",
+  "license": "MIT",
   "devDependencies": {
+    "@types/node": "^10.5.2",
+    "@types/react": "^16.4.6",
+    "@types/react-bootstrap": "^0.32.10",
+    "@types/react-dom": "^16.0.6",
+    "@types/snowboy": "^1.2.0",
     "electron": "^2.0.2",
     "electron-rebuild": "^1.8.1",
     "tslint": "^5.10.0",
     "typescript": "^2.8.3"
   },
   "dependencies": {
-    "@types/node": "^10.5.2",
-    "@types/react": "^16.4.6",
-    "@types/react-bootstrap": "^0.32.10",
-    "@types/react-dom": "^16.0.6",
-    "@types/snowboy": "^1.2.0",
     "microsoft-speech-browser-sdk": "^0.0.12",
     "nan": "^2.10.0",
     "node-record-lpcm16": "^0.3.0",

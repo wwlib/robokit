@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import Application from './components/Application';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import SnowboyController from './snowboy/SnowboyController';
+import WwMusicController from './ww/WwMusicController';
 
 // import * as styles from '../../css/bootstrap.min.css';
 // import * as styles2 from '../../css/bootstrap-theme.min.css';
@@ -29,6 +30,10 @@ function startHotword() {
     const snowboyController = new SnowboyController();
 }
 
+function startMusic() {
+    const musicController = new WwMusicController();
+}
+
 function addButton(type: string, handler: any): void {
 
 	var element = document.createElement("input");
@@ -42,3 +47,4 @@ function addButton(type: string, handler: any): void {
 
 addButton("Speech", startRecognizer);
 addButton("Hotword", startHotword);
+addButton("Music", startMusic);

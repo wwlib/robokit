@@ -2,6 +2,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import Application from './components/Application';
 import STTController from './STTController';
+import HotwordController from './HotwordController';
 import AsyncToken from './AsyncToken';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
@@ -27,17 +28,19 @@ function startRecognizer() {
         console.log(`renderer: startRecognizer: on Listening`);
     });
 
-    t.on('Listening_Recognizing', () => {
-        console.log(`renderer: startRecognizer: on Listening_Recognizing`);
-    });
-
     t.on('RecognitionEndedEvent', () => {
         console.log(`renderer: startRecognizer: on RecognitionEndedEvent`);
+    });
+
+    t.on('Recording_Stopped', () => {
+        console.log(`renderer: startRecognizer: on Recording_Stopped`);
+        startHotword();
     });
 
     t.complete
         .then((result: string) => {
             console.log(`RESULT: ${result}`);
+
         })
         .catch((error: any) => {
             console.log(error);
@@ -46,7 +49,25 @@ function startRecognizer() {
 }
 
 function startHotword() {
-    const snowboyController = new SnowboyController();
+    const hotwordController: HotwordController = new SnowboyController();
+    let t: AsyncToken = hotwordController.RecognizerStart({sampleRate: 16000});
+
+    t.on('Listening', () => {
+        console.log(`renderer: startHotword: on Listening`);
+    });
+
+    t.on('hotword', () => {
+        console.log(`renderer: startHotword: on hotword`);
+    });
+
+    t.complete
+        .then((result: string) => {
+            console.log(`HOTWORD:`, result);
+            startRecognizer();
+        })
+        .catch((error: any) => {
+            console.log(error);
+            });
 }
 
 function startMusic() {
@@ -67,3 +88,5 @@ function addButton(type: string, handler: any): void {
 addButton("Speech", startRecognizer);
 addButton("Hotword", startHotword);
 addButton("Music", startMusic);
+
+startHotword();

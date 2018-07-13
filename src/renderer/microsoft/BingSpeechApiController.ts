@@ -24,8 +24,7 @@ export default class BingSpeechApiController extends STTController{
         console.log(`BingSpeechApiController: RecognizerStart:`);
         let token = new AsyncToken();
         token.complete = new Promise<string>((resolve: any, reject: any) => {
-            console.log(`LISTENING`);
-            process.nextTick(() => {token.emit('Listening');})
+            process.nextTick(() => {token.emit('Listening');});
             let client = new BingSpeechClient(config.Microsoft.BingSTTSubscriptionKey);
             let liveStream = record
                 .start({
@@ -42,8 +41,8 @@ export default class BingSpeechApiController extends STTController{
 
             setTimeout(() => {
                 console.log(`stopping`);
-                token.emit('Listening_Recognizing');
                 record.stop();
+                token.emit('Recording_Stopped');
             }, recordDuration);
 
             client.recognizeStream(liveStream).then((response: any) => {

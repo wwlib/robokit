@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>eye</title>
+        <meta name="generator" content="PixiAnimate Extension">
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    </head>
+    <body>
+        <canvas id="stage" width="1280" height="720"></canvas>
+        <script src="libs/pixi.js"></script>
+        <script src="libs/pixi-animate.js"></script>
+        <script src="eye.js"></script>
+        <script>
+            var renderer = new PIXI.autoDetectRenderer(1280, 720, {
+                view: document.getElementById("stage"),
+                backgroundColor: 0x0,
+                antialias: true
+            });
+            var stage = new PIXI.Container();
+            PIXI.animate.load(lib.eye, stage);
+            function update() {
+                renderer.render(stage);
+                requestAnimationFrame(update);
+            }
+            update();
+        </script>
+    </body>
+</html>

@@ -29,8 +29,6 @@ export default class BingSpeechApiController extends STTController{
             let liveStream = record
                 .start({
                     sampleRateHertz: 16000,
-                    //thresholdStart: '0.5',
-                    //thresholdEnd: '10.0',
                     verbose: true,
                     recordProgram: 'rec'
                 })
@@ -46,7 +44,7 @@ export default class BingSpeechApiController extends STTController{
             }, recordDuration);
 
             client.recognizeStream(liveStream).then((response: any) => {
-                // console.log(response.results[0].name);
+                console.log(response);
                 token.emit('RecognitionEndedEvent');
                 let result = '';
                 if (response && response.results && response.results[0] && response.results[0].name) {

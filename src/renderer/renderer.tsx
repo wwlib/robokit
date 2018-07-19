@@ -2,10 +2,12 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import Application from './components/Application';
 import STTController from './STTController';
+import TTSController from './TTSController';
 import HotwordController from './HotwordController';
 import AsyncToken from './AsyncToken';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
+import BingTTSController from './microsoft/BingTTSController';
 import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
 
@@ -40,6 +42,24 @@ function startRecognizer() {
     t.complete
         .then((result: string) => {
             console.log(`RESULT: ${result}`);
+			const ttsController: TTSController = new BingTTSController();
+			let t: AsyncToken = ttsController.SynthesizerStart(`you said, ${result}`);
+
+			t.on('Synthesizing', () => {
+				console.log(`renderer: startRecognizer: on Synthesizing`);
+			});
+
+			t.on('SynthesisEndedEvent', () => {
+				console.log(`renderer: startRecognizer: on SynthesisEndedEvent`);
+			});
+
+			t.complete
+				.then((result: string) => {
+		            console.log(`SYNTHESIS RESULT: ${result}`);
+				})
+				.catch((error: any) => {
+		            console.log(error);
+		            });
 
         })
         .catch((error: any) => {

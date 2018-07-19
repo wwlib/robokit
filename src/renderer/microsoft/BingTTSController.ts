@@ -24,7 +24,7 @@ export default class BingTTSController extends TTSController{
     }
 
     SynthesizerStart(text: string, options?: any): AsyncToken {
-        console.log(`BingTTSController: SynthesizerStart: ${text}`);
+        //console.log(`BingTTSController: SynthesizerStart: ${text}`);
         let token = new AsyncToken();
         token.complete = new Promise<string>((resolve: any, reject: any) => {
             process.nextTick(() => {token.emit('Synthesizing');});
@@ -40,18 +40,17 @@ export default class BingTTSController extends TTSController{
                 });
                 audioStream.on('end', () => {
                     // console.log('audioStream end');
-                    var audioStreamBuffer = Buffer.concat(buffers);
-
-                    let audioData = new Uint8Array(audioStreamBuffer).buffer;
-
-                    this.audioContext.decodeAudioData(audioData, (buffer: any) => {
-                        let decodedBuffer = buffer;
-                        let bufferSource = this.audioContext.createBufferSource();
-                        bufferSource.buffer = decodedBuffer;
-                        bufferSource.connect(this.masterVolumeGainNode);
-                        bufferSource.start(this.audioContext.currentTime);
-                    });
-
+                    if (buffers && buffers.length > 0) {
+                        let audioStreamBuffer = Buffer.concat(buffers);
+                        let audioData = new Uint8Array(audioStreamBuffer).buffer;
+                        this.audioContext.decodeAudioData(audioData, (buffer: any) => {
+                            let decodedBuffer = buffer;
+                            let bufferSource = this.audioContext.createBufferSource();
+                            bufferSource.buffer = decodedBuffer;
+                            bufferSource.connect(this.masterVolumeGainNode);
+                            bufferSource.start(this.audioContext.currentTime);
+                        });
+                    }
                     resolve(text);
                 });
             });

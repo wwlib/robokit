@@ -32,7 +32,7 @@ export default class SnowboyController extends HotwordController{
 		if (options && options.sampleRate) {
 			sampleRate = options.sampleRate;
 		}
-		console.log(`SnowboyController: RecognizerStart:`);
+		// console.log(`SnowboyController: RecognizerStart:`);
 		let token = new AsyncToken();
 		token.complete = new Promise<string>((resolve: any, reject: any) => {
 			process.nextTick(() => {token.emit('Listening');});

@@ -23,6 +23,8 @@ const eyeClass: any = require(eyeClassPath);
 let eyeInstance: any = null;
 const canvasElement: HTMLCanvasElement = document.getElementById("stage") as HTMLCanvasElement;
 
+const audioContext = new AudioContext();
+
 let renderer = PIXI.autoDetectRenderer(1280, 720, {
     view: canvasElement,
     backgroundColor: 0x0,
@@ -74,7 +76,7 @@ function startRecognizer() {
     t.complete
         .then((result: string) => {
             //console.log(`RESULT: ${result}`);
-			const ttsController: TTSController = new BingTTSController();
+			const ttsController: TTSController = new BingTTSController(audioContext);
 			let utterance: string = result;
 			if (result != '') {
 				utterance = `you said, ${utterance}`;

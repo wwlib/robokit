@@ -14,10 +14,10 @@ export default class BingTTSController extends TTSController{
     public audioContext: AudioContext;
     public masterVolumeGainNode: GainNode;
 
-    constructor() {
+    constructor(audioContext: AudioContext) {
         super();
 
-        this.audioContext = new AudioContext();
+        this.audioContext = audioContext;
         this.masterVolumeGainNode = this.audioContext.createGain();
         this.masterVolumeGainNode.gain.value = 1.0;
         this.masterVolumeGainNode.connect(this.audioContext.destination);

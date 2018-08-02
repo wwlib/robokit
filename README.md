@@ -38,6 +38,8 @@ Use the UI buttons to trigger Speech to Text listening and Midi playback.
 RoboKit uses:
 - Snowboy ([https://www.npmjs.com/package/snowboy](https://www.npmjs.com/package/snowboy)) for **hotword** detection.
 - Pixi.js ([https://www.npmjs.com/package/pixi.js](https://www.npmjs.com/package/pixi.js)) for screen animation
+- BingSTT, BingTTS [https://azure.microsoft.com/en-us/services/cognitive-services/](https://azure.microsoft.com/en-us/services/cognitive-services/)
+- LUIS NLU [https://www.luis.ai/](https://www.luis.ai/_)
 
 #### License
 

@@ -16,6 +16,13 @@ yarn
 yarn start
 ```
 
+#### Dependencies
+
+OSX  
+```
+brew install sox
+```
+
 #### UI
 
 Use the UI buttons to trigger Speech to Text listening and Midi playback.

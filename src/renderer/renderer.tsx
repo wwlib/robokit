@@ -12,6 +12,7 @@ import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
 import NLUController, { NLUIntentAndEntities } from './NLUController';
 import LUISController from './microsoft/LUISController';
+import Hub from './skills/Hub';
 
 
 import * as PIXI from 'pixi.js'
@@ -86,6 +87,7 @@ function startNLU(utterance: string) {
     t.complete
         .then((intentAndEntities: NLUIntentAndEntities) => {
             console.log(`NLUIntentAndEntities: `, intentAndEntities);
+            Hub.Instance().handleLaunchIntent(intentAndEntities, utterance);
         })
         .catch((error: any) => {
             console.log(error);
@@ -143,7 +145,7 @@ function startHotword() {
 
     t.complete
         .then((result: HotwordResult) => {
-            console.log(`HotWord: reslut:`, result);
+            console.log(`HotWord: result:`, result);
             startRecognizer();
         })
         .catch((error: any) => {

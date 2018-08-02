@@ -5,4 +5,4 @@ yarn.lock
 yarn-error.log
 package-lock.json
 data/config.json
-hide
+tts-out.wav

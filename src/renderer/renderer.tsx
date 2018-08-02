@@ -3,13 +3,15 @@ import { render } from 'react-dom';
 import Application from './components/Application';
 import STTController from './STTController';
 import TTSController from './TTSController';
-import HotwordController from './HotwordController';
+import HotwordController, { HotwordResult } from './HotwordController';
 import AsyncToken from './AsyncToken';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
 import BingTTSController from './microsoft/BingTTSController';
 import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
+import NLUController, { NLUIntentAndEntities } from './NLUController';
+import LUISController from './microsoft/LUISController';
 
 
 import * as PIXI from 'pixi.js'
@@ -55,10 +57,45 @@ render(
 );
 */
 
+function startTTS(prompt: string) {
+    const ttsController: TTSController = new BingTTSController(audioContext);
+    let t: AsyncToken<string> = ttsController.SynthesizerStart(prompt);
+
+    t.on('Synthesizing', () => {
+        //console.log(`renderer: startRecognizer: on Synthesizing`);
+    });
+
+    t.on('SynthesisEndedEvent', () => {
+        //console.log(`renderer: startRecognizer: on SynthesisEndedEvent`);
+    });
+
+    t.complete
+        .then((result: string) => {
+            //console.log(`SYNTHESIS RESULT: ${result}`);
+        })
+        .catch((error: any) => {
+            console.log(error);
+        });
+}
+
+function startNLU(utterance: string) {
+    const nluController: NLUController = new LUISController();
+
+    let t: AsyncToken<NLUIntentAndEntities> = nluController.getIntentAndEntities(utterance);
+
+    t.complete
+        .then((intentAndEntities: NLUIntentAndEntities) => {
+            console.log(`NLUIntentAndEntities: `, intentAndEntities);
+        })
+        .catch((error: any) => {
+            console.log(error);
+		});
+}
+
 function startRecognizer() {
 	// const speechController: STTController = new MicrosoftSpeechController();
     const speechController: STTController = new BingSpeechApiController();
-	let t: AsyncToken = speechController.RecognizerStart({recordDuration: 3000});
+	let t: AsyncToken<string> = speechController.RecognizerStart({recordDuration: 3000});
 
     t.on('Listening', () => {
         //console.log(`renderer: startRecognizer: on Listening`);
@@ -74,31 +111,9 @@ function startRecognizer() {
     });
 
     t.complete
-        .then((result: string) => {
-            //console.log(`RESULT: ${result}`);
-			const ttsController: TTSController = new BingTTSController(audioContext);
-			let utterance: string = result;
-			if (result != '') {
-				utterance = `you said, ${utterance}`;
-			}
-			let t: AsyncToken = ttsController.SynthesizerStart(utterance);
-
-			t.on('Synthesizing', () => {
-				//console.log(`renderer: startRecognizer: on Synthesizing`);
-			});
-
-			t.on('SynthesisEndedEvent', () => {
-				//console.log(`renderer: startRecognizer: on SynthesisEndedEvent`);
-			});
-
-			t.complete
-				.then((result: string) => {
-		            //console.log(`SYNTHESIS RESULT: ${result}`);
-				})
-				.catch((error: any) => {
-		            console.log(error);
-		        });
-
+        .then((utterance: string) => {
+            console.log(`Utterance: ${utterance}`);
+			startNLU(utterance);
         })
         .catch((error: any) => {
             console.log(error);
@@ -108,7 +123,7 @@ function startRecognizer() {
 
 function startHotword() {
     const hotwordController: HotwordController = new SnowboyController();
-    let t: AsyncToken = hotwordController.RecognizerStart({sampleRate: 16000});
+    let t: AsyncToken<HotwordResult> = hotwordController.RecognizerStart({sampleRate: 16000});
 	if (eyeInstance) {
 		eyeInstance.gotoAndPlay('blink');
 		eyeInstance.eye.eye_blue.visible = false;
@@ -127,8 +142,8 @@ function startHotword() {
     });
 
     t.complete
-        .then((result: string) => {
-            //console.log(`HOTWORD:`, result);
+        .then((result: HotwordResult) => {
+            console.log(`HotWord: reslut:`, result);
             startRecognizer();
         })
         .catch((error: any) => {

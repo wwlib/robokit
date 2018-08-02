@@ -32,7 +32,7 @@ export default class Application extends React.Component < ApplicationProps, App
         switch (action) {
             case 'startSpeech':
                 const microsoftSpeechController: STTController = new MicrosoftSpeechController();
-                let t: AsyncToken = microsoftSpeechController.RecognizerStart();
+                let t: AsyncToken<string> = microsoftSpeechController.RecognizerStart();
                 t.complete
                     .then((result: string) => {
                         console.log(`RESULT: ${result}`);

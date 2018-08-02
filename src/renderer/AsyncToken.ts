@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 
-export default class AsyncToken extends EventEmitter {
+export default class AsyncToken<T> extends EventEmitter {
 
-    public complete: Promise<any>;
+    public complete: Promise<T>;
 
     constructor() {
         super();

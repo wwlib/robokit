@@ -1,5 +1,8 @@
 {
     "Microsoft": {
-        "BingSTTSubscriptionKey": "<YOUR-SUBSCRIPTION-KEY>"
+        "BingSTTSubscriptionKey": "<YOUR-SUBSCRIPTION-KEY>",
+        "nluLUIS_endpoint": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/",
+        "nluLUIS_appId": "",
+        "nluLUIS_subscriptionKey": ""
     }
 }

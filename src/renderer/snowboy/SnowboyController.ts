@@ -1,6 +1,6 @@
 const record = require('node-record-lpcm16');
 import { Detector, Models } from 'snowboy';
-import HotwordController from '../HotwordController';
+import HotwordController, { HotwordResult } from '../HotwordController';
 import AsyncToken from '../AsyncToken';
 const path = require('path');
 const findRoot = require('find-root');
@@ -27,14 +27,14 @@ export default class SnowboyController extends HotwordController{
 		});
 	}
 
-	RecognizerStart(options: any): AsyncToken {
+	RecognizerStart(options: any): AsyncToken<HotwordResult> {
 		let sampleRate = 16000;
 		if (options && options.sampleRate) {
 			sampleRate = options.sampleRate;
 		}
 		// console.log(`SnowboyController: RecognizerStart:`);
-		let token = new AsyncToken();
-		token.complete = new Promise<string>((resolve: any, reject: any) => {
+		let token = new AsyncToken<HotwordResult>();
+		token.complete = new Promise<HotwordResult>((resolve: any, reject: any) => {
 			process.nextTick(() => {token.emit('Listening');});
 
 			this.detector = new Detector({
@@ -70,7 +70,7 @@ export default class SnowboyController extends HotwordController{
 			  //console.log('hotword', index, hotword);
 			  record.stop();
 			  token.emit('hotword');
-			  resolve({index: index, hotword: hotword});
+			  resolve({hotword: hotword, index: index, buffer: buffer});
 
 			});
 

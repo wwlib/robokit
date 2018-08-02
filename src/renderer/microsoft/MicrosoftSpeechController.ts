@@ -42,9 +42,9 @@ export default class MicrosoftSpeechController extends STTController{
         return SDK.CreateRecognizer(recognizerConfig, authentication);
     }
 
-    RecognizerStart(): AsyncToken {
+    RecognizerStart(): AsyncToken<string> {
         console.log(`MicrosoftSpeechController: RecognizerStart:`);
-        let token = new AsyncToken();
+        let token = new AsyncToken<string>();
         token.complete = new Promise<string>((resolve: any, reject: any) => {
             this.recognizer.Recognize((event: any) => {
                 /*

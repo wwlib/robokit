@@ -23,9 +23,9 @@ export default class BingTTSController extends TTSController{
         this.masterVolumeGainNode.connect(this.audioContext.destination);
     }
 
-    SynthesizerStart(text: string, options?: any): AsyncToken {
+    SynthesizerStart(text: string, options?: any): AsyncToken<string> {
         //console.log(`BingTTSController: SynthesizerStart: ${text}`);
-        let token = new AsyncToken();
+        let token = new AsyncToken<string>();
         token.complete = new Promise<string>((resolve: any, reject: any) => {
             process.nextTick(() => {token.emit('Synthesizing');});
             let client = new BingSpeechClient(config.Microsoft.BingSTTSubscriptionKey);

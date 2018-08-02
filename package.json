@@ -8,7 +8,9 @@
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "tsc -v && yarn build && electron ./dist/main/main.js",
     "restart": "electron ./dist/main/main.js",
-    "rebuild": "electron-rebuild -f -w snowboy"
+    "rebuild": "electron-rebuild -f -w snowboy",
+    "version": "./version.sh $npm_package_version",
+    "test-version": "./version.sh $npm_package_version"
   },
   "repository": {
     "type": "git",

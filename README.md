@@ -31,7 +31,10 @@ brew install sox
 
 #### UI
 
-Use the UI buttons to trigger Speech to Text listening and Midi playback.
+Say
+ - Hey Robo, what time is it?
+ - Hey Robo, tell me a joke.
+ - Hey Robo, who is your favorite robot?
 
 #### Notes
 

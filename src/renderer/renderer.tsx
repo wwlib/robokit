@@ -6,7 +6,7 @@ import HotwordController from './HotwordController';
 import AsyncToken from './AsyncToken';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
-import SnowboyController from './snowboy/SnowboyController';
+// import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
 
 // import * as styles from '../../css/bootstrap.min.css';
@@ -34,7 +34,7 @@ function startRecognizer() {
 
     t.on('Recording_Stopped', () => {
         console.log(`renderer: startRecognizer: on Recording_Stopped`);
-        startHotword();
+        // startHotword();
     });
 
     t.complete
@@ -47,7 +47,7 @@ function startRecognizer() {
             });
 
 }
-
+/*
 function startHotword() {
     const hotwordController: HotwordController = new SnowboyController();
     let t: AsyncToken = hotwordController.RecognizerStart({sampleRate: 16000});
@@ -69,7 +69,7 @@ function startHotword() {
             console.log(error);
             });
 }
-
+*/
 function startMusic() {
     const musicController = new WwMusicController();
 }
@@ -86,7 +86,7 @@ function addButton(type: string, handler: any): void {
 }
 
 addButton("Speech", startRecognizer);
-addButton("Hotword", startHotword);
+// addButton("Hotword", startHotword);
 addButton("Music", startMusic);
 
-startHotword();
+// startHotword();

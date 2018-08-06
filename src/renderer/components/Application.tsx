@@ -3,7 +3,7 @@ import * as ReactBootstrap from "react-bootstrap";
 
 import MicrosoftSpeechController from '../microsoft/MicrosoftSpeechController';
 import WwMusicController from '../ww/WwMusicController';
-import SnowboyController from '../snowboy/SnowboyController';
+// import SnowboyController from '../snowboy/SnowboyController';
 import STTController from '../STTController';
 import AsyncToken from '../AsyncToken';
 
@@ -45,7 +45,7 @@ export default class Application extends React.Component < ApplicationProps, App
                 const musicController = new WwMusicController();
                 break;
             case 'startSnowboy':
-                const snowboyController = new SnowboyController();
+                // const snowboyController = new SnowboyController();
                 break;
         }
     }

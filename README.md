@@ -1,10 +1,15 @@
-### electron-typescript-robokit
+### robokit
+
+![RoboKit](docs/img/robokit-logo.png)  
 
 ![RoboKit](docs/img/RoboKit.png)
 
 An electron app for transforming a device (i.e. Mac, Raspberry Pi, etc.) into a voice-driven robot.
 
 Note: This a work in progress.
+
+
+[https://github.com/wwlib/robokit](https://github.com/wwlib/robokit)
 
 [Demo Video - YouTube](https://youtu.be/r_Vzp8tXdkI)
 

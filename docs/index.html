@@ -1,0 +1,89 @@
+<html>
+<head>
+    <title>robokit.io</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+    <style>
+      html {
+          display: table;
+          margin: auto;
+      }
+
+      body {
+          display: table-cell;
+          vertical-align: middle;
+          max-width: 800px;
+      }
+    </style>
+</head>
+<body>
+
+<h3 id="electrontypescriptrobokit">robokit</h3>
+
+<p><img src="./img/robokit-logo.png" alt="RoboKit" /></p>
+<p><img src="./img/RoboKit.png" alt="RoboKit" /></p>
+
+<p>An electron app for transforming a device (i.e. Mac, Raspberry Pi, etc.) into a voice-driven robot.</p>
+
+<p>Note: This a work in progress.</p>
+
+<p><a href="https://github.com/wwlib/robokit">https://github.com/wwlib/robokit</a></p>
+
+<p><a href="https://youtu.be/r_Vzp8tXdkI">Demo Video - YouTube</a></p>
+
+<h4 id="config">Config</h4>
+
+<ul>
+<li>duplicate <code>data/config-example.json</code> and rename it <code>config.json</code>  </li>
+
+<li>add your Bing STT subscription key</li>
+
+<li>add your LUIS credentials</li>
+
+<li>(optional) upload <code>docs/LUIS-knowledge-graph.json</code> to LUIS to configure a new NLU app</li>
+</ul>
+
+<h4 id="building">Building</h4>
+
+<pre><code>yarn
+yarn start
+</code></pre>
+
+<h4 id="dependencies">Dependencies</h4>
+
+<p>OSX  </p>
+
+<pre><code>brew install sox
+</code></pre>
+
+<h4 id="ui">UI</h4>
+
+<p>Say</p>
+
+<ul>
+<li>Hey Robo, what time is it?</li>
+
+<li>Hey Robo, tell me a joke.</li>
+
+<li>Hey Robo, who is your favorite robot?</li>
+</ul>
+
+<h4 id="notes">Notes</h4>
+
+<p>RoboKit uses:</p>
+
+<ul>
+<li>Snowboy (<a href="https://www.npmjs.com/package/snowboy">https://www.npmjs.com/package/snowboy</a>) for <strong>hotword</strong> detection.</li>
+
+<li>Pixi.js (<a href="https://www.npmjs.com/package/pixi.js">https://www.npmjs.com/package/pixi.js</a>) for screen animation</li>
+
+<li>BingSTT, BingTTS <a href="https://azure.microsoft.com/en-us/services/cognitive-services/">https://azure.microsoft.com/en-us/services/cognitive-services/</a></li>
+
+<li>LUIS NLU <a href="https://www.luis.ai/_">https://www.luis.ai/</a></li>
+</ul>
+
+<h4 id="license">License</h4>
+
+<p><a href="LICENSE.md">MIT</a></p>
+
+</body>
+</html>

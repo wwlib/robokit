@@ -1,5 +1,5 @@
 {
-  "name": "electron-typescript-robokit",
+  "name": "robokit",
   "version": "0.0.1",
   "description": "A minimal Electron 'robot' written with Typescript. Runs on a Raspberry Pi",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wwlib/electron-typescript-robokit"
+    "url": "https://github.com/wwlib/robokit"
   },
   "keywords": [
     "Electron",

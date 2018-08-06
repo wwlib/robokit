@@ -110,7 +110,7 @@ export default class TCPClientSession {
 					authMsg.port = this._port;
 					console.log(`  --> TCP_c: received Msg_Auth: `, authMsg.command);
 					// this.userUUID = Director.Instance().authenticateUser(authMsg); //TODO: add real authentication flow
-					this.userUUID = uuidv4();
+					this.userUUID = 'SHARED-PUB-SUB-CHANNEL';
 					authMsg.userUUID = this.userUUID;
 					authMsg.password = '';
 					authMsg.authToken = '<AUTH-TOKEN>';

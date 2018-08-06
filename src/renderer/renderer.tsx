@@ -14,6 +14,11 @@ import NLUController, { NLUIntentAndEntities } from './NLUController';
 import LUISController from './microsoft/LUISController';
 import Hub from './skills/Hub';
 import TCPClientServer from './connection/TCPClientServer';
+import PubSub, { PubSubClient } from './ww/PubSub';
+import Message, { MessageType } from './message/Message';
+import MessageFactory from './message/MessageFactory';
+import Msg_Auth from './message/Msg_Auth';
+import Msg_Chat from './message/Msg_Chat';
 
 
 import * as PIXI from 'pixi.js'
@@ -29,6 +34,9 @@ const canvasElement: HTMLCanvasElement = document.getElementById("stage") as HTM
 
 const audioContext = new AudioContext();
 let server: TCPClientServer = startServer(9797);
+let pubSubClient: PubSubClient = PubSub.Instance().createClient();
+pubSubClient.on('message_buffer', onMessageBuffer.bind(this));
+pubSubClient.subscribe(`SHARED-PUB-SUB-CHANNEL.in`);
 
 let renderer = PIXI.autoDetectRenderer(1280, 720, {
     view: canvasElement,
@@ -157,6 +165,43 @@ function startHotword() {
     //     .catch((error: any) => {
     //         console.log(error);
     //     });
+}
+
+function onMessageBuffer(message: any, data: any): void {
+    console.log(`onMessageBuffer: `, message, data);
+    let msg: Message = MessageFactory.parse(data);
+        if (msg) {
+            let message_type: number = msg.getType();
+
+            switch (message_type) {
+                case MessageType.Auth:
+                    let authMsg: Msg_Auth = msg as Msg_Auth;
+                    console.log(`  --> Client: received Msg_Auth: ${authMsg.command}`);
+                    if (authMsg.command === 'authorized') {
+                        this.id = authMsg.id;
+                        this.userUUID = authMsg.userUUID;
+                    }
+                    break;
+                case MessageType.Chat:
+                    let chatMsg: Msg_Chat = msg as Msg_Chat;
+                    console.log(`  --> Client: received Msg_Chat: `, chatMsg.body);
+                    handleChatMessage(chatMsg.body);
+                    break;
+                default:
+                    console.log("Unidentified packet type.");
+                    break;
+            }
+        } else {
+            console.log(`  --> Client: unrecognized message: `, message);
+        }
+}
+
+function handleChatMessage(message: string): void {
+    switch(message) {
+        case "blink":
+            eyeInstance.gotoAndPlay('blink');
+            break;
+    }
 }
 
 function startMusic() {

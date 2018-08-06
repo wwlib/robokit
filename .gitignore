@@ -6,3 +6,4 @@ yarn-error.log
 package-lock.json
 data/config.json
 tts-out.wav
+__pycache__

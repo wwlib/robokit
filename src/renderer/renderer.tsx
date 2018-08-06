@@ -8,11 +8,12 @@ import AsyncToken from './AsyncToken';
 import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
 import BingTTSController from './microsoft/BingTTSController';
-import SnowboyController from './snowboy/SnowboyController';
+// import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
 import NLUController, { NLUIntentAndEntities } from './NLUController';
 import LUISController from './microsoft/LUISController';
 import Hub from './skills/Hub';
+import TCPClientServer from './connection/TCPClientServer';
 
 
 import * as PIXI from 'pixi.js'
@@ -27,6 +28,7 @@ let eyeInstance: any = null;
 const canvasElement: HTMLCanvasElement = document.getElementById("stage") as HTMLCanvasElement;
 
 const audioContext = new AudioContext();
+let server: TCPClientServer = startServer(9797);
 
 let renderer = PIXI.autoDetectRenderer(1280, 720, {
     view: canvasElement,
@@ -57,6 +59,10 @@ render(
     document.getElementById('app')
 );
 */
+
+function startServer(port: number): TCPClientServer {
+    return new TCPClientServer(port);
+}
 
 function startTTS(prompt: string) {
     const ttsController: TTSController = new BingTTSController(audioContext);
@@ -124,33 +130,33 @@ function startRecognizer() {
 }
 
 function startHotword() {
-    const hotwordController: HotwordController = new SnowboyController();
-    let t: AsyncToken<HotwordResult> = hotwordController.RecognizerStart({sampleRate: 16000});
-	if (eyeInstance) {
-		eyeInstance.gotoAndPlay('blink');
-		eyeInstance.eye.eye_blue.visible = false;
-	}
-
-
-    t.on('Listening', () => {
-        //console.log(`renderer: startHotword: on Listening`);
-    });
-
-    t.on('hotword', () => {
-        //console.log(`renderer: startHotword: on hotword: `, eyeInstance);
-		if (eyeInstance) {
-			eyeInstance.eye.eye_blue.visible = true;
-		}
-    });
-
-    t.complete
-        .then((result: HotwordResult) => {
-            console.log(`HotWord: result:`, result);
-            startRecognizer();
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
+    // const hotwordController: HotwordController = new SnowboyController();
+    // let t: AsyncToken<HotwordResult> = hotwordController.RecognizerStart({sampleRate: 16000});
+	// if (eyeInstance) {
+	// 	eyeInstance.gotoAndPlay('blink');
+	// 	eyeInstance.eye.eye_blue.visible = false;
+	// }
+    //
+    //
+    // t.on('Listening', () => {
+    //     //console.log(`renderer: startHotword: on Listening`);
+    // });
+    //
+    // t.on('hotword', () => {
+    //     //console.log(`renderer: startHotword: on hotword: `, eyeInstance);
+	// 	if (eyeInstance) {
+	// 		eyeInstance.eye.eye_blue.visible = true;
+	// 	}
+    // });
+    //
+    // t.complete
+    //     .then((result: HotwordResult) => {
+    //         console.log(`HotWord: result:`, result);
+    //         startRecognizer();
+    //     })
+    //     .catch((error: any) => {
+    //         console.log(error);
+    //     });
 }
 
 function startMusic() {

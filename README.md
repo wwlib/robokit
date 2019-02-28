@@ -24,6 +24,7 @@ Note: This a work in progress.
 
 ```
 yarn
+yarn rebuild (see below)
 yarn start
 ```
 
@@ -34,6 +35,13 @@ OSX
 brew install sox
 ```
 
+#### compiling snowboy for electron
+snowboy needs to be recompiled for electron using
+```
+yarn rebuild
+```
+This is equivalent to `electron-rebuild -f -w snowboy`
+See: https://github.com/dolanmiu/MMM-awesome-alexa/issues/91
 #### UI
 
 Say

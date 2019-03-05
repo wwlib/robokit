@@ -201,6 +201,14 @@ export default class SocketServer extends EventEmitter {
         });
     }
 
+    getNetworkTime(): number {
+        let currentTime: number = new Date().getTime();
+        // if (this.clockSync) {
+        //     currentTime = this.clockSync._now();
+        // }
+        return currentTime;
+    }
+
     dispose(): void {
         this.connections.forEach((socket: WebSocket) => {
             socket.close();

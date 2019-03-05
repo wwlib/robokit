@@ -1,101 +1,40 @@
-import {EventEmitter} from "events";
-import SocketServer, { Message, MessagePayload } from './SocketServer';
-import { NLUIntentAndEntities } from '../NLUController';
-import { ResponseMessage } from './commands/CommandHandler';
-import Log from '../utils/Log';
-import parentLog from '../log';
+import { EventEmitter } from 'events';
+import ConnectionManager from '../connection/ConnectionManager';
+import { CommandHandler, ResponseMessage } from './CommandHandler';
+import BlinkCommandHandler from './BlinkCommandHandler';
 
-export type RomManagerOptions = {
+import SuperSystem from './systems/SuperSystem';
 
-}
+export default class CommandManager extends EventEmitter {
 
-// Remote Operation Mode Manager
-export default class RomManager extends EventEmitter {
+    private static _instance: CommandManager;
 
-    private static _instance: RomManager;
-
-    public socketServer: SocketServer;
-    public isReadyForCommand: boolean;
     public log: Log;
-    
-    private _onMessageHandler: any = this.onMessage.bind(this);
+    public isReadyForCommand = true;
+    public system: SuperSystem;
 
-    constructor(options?: RomManagerOptions) {
-        super ();
-        this.isReadyForCommand = true;
+    constructor() {
+        super();
+        this.init();
     }
 
-    static Instance(options?: RomManagerOptions)
-    {
-        return this._instance || (this._instance = new this(options));
+    init() {
+        this.log = parentLog.createChild('command-manager');
+        this.attentionOff();
+        this.system = new SuperSystem();
     }
 
-    init(): void {
-        this.log = parentLog.createChild('rom-manager');
+    reset() {
+        this.cleanup();
+        this.init();
     }
 
-    start(): void {
-        this.socketServer = new SocketServer();
-        this.socketServer.on('message', this._onMessageHandler);
-    }
-
-    onMessage(message: Message): void {
-        console.log(`RomManager: onMessage:`, message);
-        const payload: MessagePayload = message.payload;
-
-        switch (payload.command) {
-            case 'say':
-                this.emit('say', payload.prompt);
-                break;
+    static get instance(): CommandManager {
+        if (!CommandManager._instance) {
+            CommandManager._instance = new CommandManager();
         }
-    }
 
-    onHotword(): void {
-        const payload: MessagePayload = {
-            command: 'hotword'
-        }
-        this.sendMessage(payload);
-    }
-
-    onUtterance(utterance: string): void {
-        const payload: MessagePayload = {
-            command: 'utterance',
-            data: utterance
-        }
-        this.sendMessage(payload);
-    }
-
-    onNLU(intentAndEntities: NLUIntentAndEntities, utterance: string): void {
-        const payload: MessagePayload = {
-            command: 'nlu',
-            data: {
-                intentAndEntities: intentAndEntities,
-                utterance: utterance
-            }
-        }
-        this.sendMessage(payload);
-    }
-
-    sendMessage(payload: MessagePayload): void {
-        if (this.socketServer) {
-            let currentTime: number = new Date().getTime();
-            let message: Message = {
-                client: 'robokit',
-                id: -1,
-                type: 'rom',
-                timestamp: currentTime,
-                payload: payload
-            }
-            this.socketServer.broadcastMessage(message);
-        }
-    }
-
-    sendWebsocketMessage(type: string = 'transaction', responseMessage: ResponseMessage): void {
-
-    }
-
-    getNetworkTime(): number {
-        return this.socketServer.getNetworkTime()
+        return CommandManager._instance;
     }
 
     onCommand(data: any) {
@@ -208,8 +147,8 @@ export default class RomManager extends EventEmitter {
             responseData: undefined,
             robotSerialName: data.robotSerialName,
             sendTime: data.sendTime,
-            commandReceivedTime: this.getNetworkTime(),
-            commandCompletedTime: this.getNetworkTime(),
+            commandReceivedTime: ConnectionManager.instance.getNetworkTime(),
+            commandCompletedTime: ConnectionManager.instance.getNetworkTime(),
             status: 'OK',
             type: data.command.type
         }
@@ -221,5 +160,37 @@ export default class RomManager extends EventEmitter {
         this.log.info(`onCommandHandlerCompleted: ${commandHandler.type}:${commandHandler.id}`);
         this.system.finishCommand(commandHandler);
         commandHandler.dispose();
+    }
+
+    generateMenuConfig(commandData: any): any {
+        let menuConfig: MenuConfig = new MenuConfig(commandData.menuTitle, commandData.menuItems);
+        return menuConfig.config;
+    }
+
+    async attentionIdle() {
+        // this.log.info("Attention: IDLE");
+        await jibo.expression.setAttentionMode(jibo.expression.AttentionMode.IDLE);
+    }
+
+    async attentionOff() {
+        // this.log.info("Attention: OFF");
+        await jibo.expression.setAttentionMode(jibo.expression.AttentionMode.OFF);
+    }
+
+
+    cleanup() {
+        this.system.interruptAll(() => {
+            // TODO: How best to handle this...
+            this.log = null;
+        });
+        this.system = null;
+    }
+
+    static dispose(): void {
+        if (this._instance) {
+            jibo.loader.unloadAll(jibo.loader.activeCache); // remove all assets
+            this._instance.cleanup();
+            this._instance = undefined;
+        }
     }
 }

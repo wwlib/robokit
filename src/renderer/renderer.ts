@@ -1,11 +1,7 @@
-import * as React from 'react';
-import { render } from 'react-dom';
-import Application from './components/Application';
 import STTController from './STTController';
-import TTSController from './TTSController';
+//import TTSController from './TTSController';
 import HotwordController, { HotwordResult } from './HotwordController';
 import AsyncToken from './AsyncToken';
-import MicrosoftSpeechController from './microsoft/MicrosoftSpeechController';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
 import BingTTSController from './microsoft/BingTTSController';
 import SnowboyController from './snowboy/SnowboyController';
@@ -13,71 +9,13 @@ import WwMusicController from './ww/WwMusicController';
 import NLUController, { NLUIntentAndEntities } from './NLUController';
 import LUISController from './microsoft/LUISController';
 import Hub from './skills/Hub';
+import PixijsManager from './pixijs/PixijsManager';
+import RomManager from './rom/RomManager';
 
-
-import * as PIXI from 'pixi.js'
-import animate = require('pixi-animate');
-
-const findRoot = require('find-root');
-const root = findRoot(__dirname);
-const eyeClassPath = root + '/assets/eye/eye.js';
-const basePath = root + '/assets/eye';
-const eyeClass: any = require(eyeClassPath);
-let eyeInstance: any = null;
-const canvasElement: HTMLCanvasElement = document.getElementById("stage") as HTMLCanvasElement;
+PixijsManager.Instance().init();
+PixijsManager.Instance().start();
 
 const audioContext = new AudioContext();
-
-let renderer = PIXI.autoDetectRenderer(1280, 720, {
-    view: canvasElement,
-    backgroundColor: 0x0,
-    antialias: true
-});
-
-let stage: PIXI.Container = new PIXI.Container();
-animate.load(eyeClass.library.eye, stage, loaderCallback as any, basePath);
-function update() {
-    renderer.render(stage);
-    requestAnimationFrame(update);
-}
-update();
-
-function loaderCallback(instance: any, loader: any):void {
-    eyeInstance = instance;
-    eyeInstance.gotoAndStop('idle');
-    eyeInstance.eye.eye_blue.visible = false;
-
-}
-// import * as styles from '../../css/bootstrap.min.css';
-// import * as styles2 from '../../css/bootstrap-theme.min.css';
-
-/*
-render(
-    <Application/>,
-    document.getElementById('app')
-);
-*/
-
-function startTTS(prompt: string) {
-    const ttsController: TTSController = new BingTTSController(audioContext);
-    let t: AsyncToken<string> = ttsController.SynthesizerStart(prompt);
-
-    t.on('Synthesizing', () => {
-        //console.log(`renderer: startRecognizer: on Synthesizing`);
-    });
-
-    t.on('SynthesisEndedEvent', () => {
-        //console.log(`renderer: startRecognizer: on SynthesisEndedEvent`);
-    });
-
-    t.complete
-        .then((result: string) => {
-            //console.log(`SYNTHESIS RESULT: ${result}`);
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
-}
 
 function startNLU(utterance: string) {
     const nluController: NLUController = new LUISController();
@@ -87,6 +25,7 @@ function startNLU(utterance: string) {
     t.complete
         .then((intentAndEntities: NLUIntentAndEntities) => {
             console.log(`NLUIntentAndEntities: `, intentAndEntities);
+            RomManager.Instance().onNLU(intentAndEntities, utterance);
             Hub.Instance().handleLaunchIntent(intentAndEntities, utterance);
         })
         .catch((error: any) => {
@@ -115,7 +54,8 @@ function startRecognizer() {
     t.complete
         .then((utterance: string) => {
             console.log(`Utterance: ${utterance}`);
-			startNLU(utterance);
+            RomManager.Instance().onUtterance(utterance);
+            startNLU(utterance);
         })
         .catch((error: any) => {
             console.log(error);
@@ -126,11 +66,8 @@ function startRecognizer() {
 function startHotword() {
     const hotwordController: HotwordController = new SnowboyController();
     let t: AsyncToken<HotwordResult> = hotwordController.RecognizerStart({sampleRate: 16000});
-	if (eyeInstance) {
-		eyeInstance.gotoAndPlay('blink');
-		eyeInstance.eye.eye_blue.visible = false;
-	}
-
+    PixijsManager.Instance().eyeBlink();
+    PixijsManager.Instance().eyeShowHighlight(false);
 
     t.on('Listening', () => {
         //console.log(`renderer: startHotword: on Listening`);
@@ -138,9 +75,8 @@ function startHotword() {
 
     t.on('hotword', () => {
         //console.log(`renderer: startHotword: on hotword: `, eyeInstance);
-		if (eyeInstance) {
-			eyeInstance.eye.eye_blue.visible = true;
-		}
+        PixijsManager.Instance().eyeShowHighlight();
+        RomManager.Instance().onHotword();
     });
 
     t.complete
@@ -173,25 +109,25 @@ addButton("Hotword", startHotword);
 addButton("Music", startMusic);
 
 function eyeIdle() {
-	eyeInstance.gotoAndStop('idle');
-    eyeInstance.eye.eye_blue.visible = false;
+    PixijsManager.Instance().eyeIdle();
+    PixijsManager.Instance().eyeShowHighlight(false);
 }
 
 function eyeListen() {
-	eyeInstance.gotoAndStop('idle');
-	eyeInstance.eye.eye_blue.visible = true;
+	PixijsManager.Instance().eyeIdle();
+    PixijsManager.Instance().eyeShowHighlight();
 }
 
 function eyeBlink() {
-	eyeInstance.gotoAndPlay('blink');
+    PixijsManager.Instance().eyeBlink();
 }
 
 function eyeLookLeft() {
-	eyeInstance.gotoAndPlay('to_left');
+    PixijsManager.Instance().eyeLookLeft();
 }
 
 function eyeLookRight() {
-	eyeInstance.gotoAndPlay('to_right');
+    PixijsManager.Instance().eyeLookRight();
 }
 
 addButton("Idle", eyeIdle);
@@ -201,3 +137,11 @@ addButton("LookLeft", eyeLookLeft);
 addButton("LookRight", eyeLookRight);
 
 startHotword();
+
+// Start Remote Operation Mode Server
+RomManager.Instance().init();
+RomManager.Instance().start();
+RomManager.Instance().on('say', ((prompt: string) => {
+    console.log(`received ROM command: say:`, prompt);
+    Hub.Instance().startTTS(prompt);
+}));

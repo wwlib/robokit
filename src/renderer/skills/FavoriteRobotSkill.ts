@@ -21,10 +21,10 @@ export default class FavoriteRobotSkill extends Skill {
 
     initFavorites(): void {
         let favoriteData: any = [
-            {id: "001", name: "r2d2", prompt: "My favorite robot is Gee Bo, <anim name='Thinking_01' /> but I am also a fan of R2D2!"},
-            {id: "002", name: "kismet", prompt: "My favorite robot is Gee Bo, <anim name='Thinking_01' /> but I have a special place in my firmware for Kismet!"},
-            {id: "003", name: "c3po", prompt: "My favorite robot is Gee Bo, <anim name='Thinking_01' /> but C3PO is pretty cool too!"},
-            {id: "004", name: "megatron", prompt: "My favorite robot is Gee Bo, <anim name='Thinking_01' /> but Megatron is impressive!"},
+            {id: "001", name: "r2d2", prompt: "My favorite robot is Gee Bo, but I am also a fan of R2D2!"},
+            {id: "002", name: "kismet", prompt: "My favorite robot is Gee Bo, but I have a special place in my firmware for Kismet!"},
+            {id: "003", name: "c3po", prompt: "My favorite robot is Gee Bo, but C3PO is pretty cool too!"},
+            {id: "004", name: "megatron", prompt: "My favorite robot is Gee Bo, but Megatron is impressive!"},
         ];
 
         favoriteData.forEach((favorite: any) => {

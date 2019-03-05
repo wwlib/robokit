@@ -3,7 +3,6 @@ import Skill from './Skill';
 import TTSController from '../TTSController';
 import AsyncToken from '../AsyncToken';
 import BingTTSController from '../microsoft/BingTTSController';
-
 import NLUController, { NLUIntentAndEntities } from '../NLUController';
 import LUISController from '../microsoft/LUISController';
 
@@ -37,6 +36,7 @@ export default class Hub extends EventEmitter {
         this.registerSkill(new FavoriteRobotSkill());
         this.startTickTime = new Date().getTime();
         this.previousTickTime = this.startTickTime;
+        // TODO
         // this.tickInterval = setInterval(this.tick.bind(this), 1000);
     }
 
@@ -45,16 +45,16 @@ export default class Hub extends EventEmitter {
         return this._instance || (this._instance = new this(options));
     }
 
-    // tick(): void {
-    //     this.skillMap.forEach((skill: Skill | undefined, key: string) => {
-    //         if (skill && skill.running) {
-    //             let time: number = new Date().getTime();
-    //             let frameTime: number = time - this.previousTickTime;
-    //             let elapsedTime: number = time - this.startTickTime;
-    //             skill.tick(frameTime, elapsedTime);
-    //         }
-    //     });
-    // }
+    tick(): void {
+        this.skillMap.forEach((skill: Skill | undefined, key: string) => {
+            if (skill && skill.running) {
+                let time: number = new Date().getTime();
+                let frameTime: number = time - this.previousTickTime;
+                let elapsedTime: number = time - this.startTickTime;
+                skill.tick(frameTime, elapsedTime);
+            }
+        });
+    }
 
 
     registerSkill(skill: Skill): void {

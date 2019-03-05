@@ -18,9 +18,11 @@ export default class BingTTSController extends TTSController{
         super();
 
         this.audioContext = audioContext;
-        this.masterVolumeGainNode = this.audioContext.createGain();
-        this.masterVolumeGainNode.gain.value = 1.0;
-        this.masterVolumeGainNode.connect(this.audioContext.destination);
+        if (this.audioContext) {
+            this.masterVolumeGainNode = this.audioContext.createGain();
+            this.masterVolumeGainNode.gain.value = 1.0;
+            this.masterVolumeGainNode.connect(this.audioContext.destination);
+        }
     }
 
     SynthesizerStart(text: string, options?: any): AsyncToken<string> {
@@ -40,16 +42,18 @@ export default class BingTTSController extends TTSController{
                 });
                 audioStream.on('end', () => {
                     // console.log('audioStream end');
-                    if (buffers && buffers.length > 0) {
-                        let audioStreamBuffer = Buffer.concat(buffers);
-                        let audioData = new Uint8Array(audioStreamBuffer).buffer;
-                        this.audioContext.decodeAudioData(audioData, (buffer: any) => {
-                            let decodedBuffer = buffer;
-                            let bufferSource = this.audioContext.createBufferSource();
-                            bufferSource.buffer = decodedBuffer;
-                            bufferSource.connect(this.masterVolumeGainNode);
-                            bufferSource.start(this.audioContext.currentTime);
-                        });
+                    if (this.audioContext) {
+                        if (buffers && buffers.length > 0) {
+                            let audioStreamBuffer = Buffer.concat(buffers);
+                            let audioData = new Uint8Array(audioStreamBuffer).buffer;
+                            this.audioContext.decodeAudioData(audioData, (buffer: any) => {
+                                let decodedBuffer = buffer;
+                                let bufferSource = this.audioContext.createBufferSource();
+                                bufferSource.buffer = decodedBuffer;
+                                bufferSource.connect(this.masterVolumeGainNode);
+                                bufferSource.start(this.audioContext.currentTime);
+                            });
+                        }
                     }
                     resolve(text);
                 });

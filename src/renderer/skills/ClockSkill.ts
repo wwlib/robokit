@@ -11,13 +11,13 @@ export default class ClockSkill extends Skill {
     launch(intentAndEntities: NLUIntentAndEntities, utterance: string) :void {
             console.log(`ClockSkill: launch: `);
             let time: Date = new Date();
-            let hours: number = time.getHours(); //'9';
+            let hours: number = time.getHours();
             if (hours > 12) {
                 hours -= 12;
             }
-            let minutes: number =  time.getMinutes(); //'35'
+            let minutes: number =  time.getMinutes();
             let minutesPrefix: string = (minutes < 10) ? 'oh' : '';
-            let timePrompt: string = `<anim name='emoji-clock-hf-01' nonBlocking='true'/>The time is ${hours} ${minutesPrefix} ${minutes}`;
+            let timePrompt: string = `The time is ${hours} ${minutesPrefix} ${minutes}`;
             Hub.Instance().startTTS(timePrompt);
     }
 

@@ -3,7 +3,7 @@ import AsyncToken from './AsyncToken';
 export type HotwordResult = {
     hotword: string;
     index?: number;
-    byffer?: any;
+    buffer?: any;
 }
 export default abstract class HotwordController {
 

@@ -43,7 +43,7 @@ export default class BingSpeechApiController extends STTController{
                 token.emit('Recording_Stopped');
             }, recordDuration);
 
-            client.recognizeStream(liveStream).then((response: any) => {
+            client.recognizeStream(liveStream).then((response: VoiceRecognitionResponse) => {
                 //console.log(response);
                 token.emit('RecognitionEndedEvent');
                 let result: string = '';

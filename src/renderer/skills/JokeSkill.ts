@@ -21,10 +21,10 @@ export default class JokeSkill extends Skill {
 
     initJokes(): void {
         let jokeData: any = [
-            {id: "001", name: "sleevies", prompt: "Where does the General keep his armies? <anim name='Thinking_01' /> In his slee vees!"},
-            {id: "002", name: "chicken", prompt: "Why did the chicken cross the road? <anim name='Thinking_01' /> To get to the other side."},
-            {id: "003", name: "elephant", prompt: "You know why you never see elephants hiding up in trees? <anim name='Thinking_01' /> Because they’re really good at it."},
-            {id: "004", name: "paint", prompt: "What is red and smells like blue paint? <anim name='Thinking_01' /> Red paint."}
+            {id: "001", name: "sleevies", prompt: "Where does the General keep his armies? In his slee vees!"},
+            {id: "002", name: "chicken", prompt: "Why did the chicken cross the road? To get to the other side."},
+            {id: "003", name: "elephant", prompt: "You know why you never see elephants hiding up in trees? Because they’re really good at it."},
+            {id: "004", name: "paint", prompt: "What is red and smells like blue paint? Red paint."}
         ];
 
         jokeData.forEach((joke: any) => {

@@ -1,6 +1,5 @@
 import RomManager from '../RomManager';
 import Log from '../../utils/Log';
-import Resource from './resources';
 
 export interface ResponseMessage {
     id: string;
@@ -29,7 +28,6 @@ export abstract class CommandHandler {
     public error: string;
     public callback: any;
     public interrupted: boolean = false;
-    public resources: Resource[];
 
     constructor(commandObj: any, parentLog: Log, logName: string, callback: any) {
         this.log = parentLog.createChild(logName);
@@ -82,7 +80,7 @@ export abstract class CommandHandler {
             status: this.status,
             type: this.type
         }
-        RomManager.Instance().sendWebsocketMessage('transaction', responseMessage);
+        RomManager.Instance().sendTransactionResponse(responseMessage);
     }
 
     dispose(): void {

@@ -1,12 +1,28 @@
 import {EventEmitter} from "events";
-import SocketServer, { Message, MessagePayload } from './SocketServer';
+import SocketServer, { Message } from './SocketServer';
 import { NLUIntentAndEntities } from '../NLUController';
-import { ResponseMessage } from './commands/CommandHandler';
+import { CommandHandler, ResponseMessage } from './commands/CommandHandler';
+import TtsCommandHandler from './commands/TtsCommandHandler';
+import IdentCommandHandler from './commands/IdentCommandHandler';
+import BlinkCommandHandler from './commands/BlinkCommandHandler';
+import LookAtCommandHandler from './commands/LookAtCommandHandler';
 import Log from '../utils/Log';
 import parentLog from '../log';
 
-export type RomManagerOptions = {
+export type RobotInfo = {
+    type: string;
+    serialName: string;
+    ip?: string;
+    port?: number;
+}
 
+export type RomEventData = {
+    event: string;
+    data?: any;
+}
+
+export type RomManagerOptions = {
+    robotInfo: RobotInfo
 }
 
 // Remote Operation Mode Manager
@@ -14,14 +30,19 @@ export default class RomManager extends EventEmitter {
 
     private static _instance: RomManager;
 
-    public socketServer: SocketServer;
-    public isReadyForCommand: boolean;
     public log: Log;
+    public socketServer: SocketServer;
+    public isReadyForCommand = true;
+    public robotInfo: RobotInfo;
     
-    private _onMessageHandler: any = this.onMessage.bind(this);
+    // private _onMessageHandler: any = this.onMessage.bind(this);
+    private _onCommandHandler: any = this.onCommand.bind(this);
 
     constructor(options?: RomManagerOptions) {
         super ();
+        if (options) {
+            this.robotInfo = options.robotInfo;
+        }
         this.isReadyForCommand = true;
     }
 
@@ -36,62 +57,65 @@ export default class RomManager extends EventEmitter {
 
     start(): void {
         this.socketServer = new SocketServer();
-        this.socketServer.on('message', this._onMessageHandler);
-    }
-
-    onMessage(message: Message): void {
-        console.log(`RomManager: onMessage:`, message);
-        const payload: MessagePayload = message.payload;
-
-        switch (payload.command) {
-            case 'say':
-                this.emit('say', payload.prompt);
-                break;
-        }
+        this.robotInfo.ip = this.socketServer.host;
+        this.robotInfo.port = this.socketServer.port;
+        this.socketServer.on('transaction', this._onCommandHandler);
     }
 
     onHotword(): void {
-        const payload: MessagePayload = {
-            command: 'hotword'
+        const data: RomEventData = {
+            event: 'hotword'
         }
-        this.sendMessage(payload);
+        this.sendRomEventMessage(data);
     }
 
     onUtterance(utterance: string): void {
-        const payload: MessagePayload = {
-            command: 'utterance',
+        const data: RomEventData = {
+            event: 'utterance',
             data: utterance
         }
-        this.sendMessage(payload);
+        this.sendRomEventMessage(data);
     }
 
     onNLU(intentAndEntities: NLUIntentAndEntities, utterance: string): void {
-        const payload: MessagePayload = {
-            command: 'nlu',
+        const data: RomEventData = {
+            event: 'nlu',
             data: {
                 intentAndEntities: intentAndEntities,
                 utterance: utterance
             }
         }
-        this.sendMessage(payload);
+        this.sendRomEventMessage(data);
     }
 
-    sendMessage(payload: MessagePayload): void {
+    sendRomEventMessage(data: RomEventData): void {
         if (this.socketServer) {
             let currentTime: number = new Date().getTime();
             let message: Message = {
                 client: 'robokit',
                 id: -1,
-                type: 'rom',
-                timestamp: currentTime,
-                payload: payload
+                type: 'rom-event',
+                sendTime: currentTime,
+                status: 'OK',
+                data: data
             }
             this.socketServer.broadcastMessage(message);
         }
     }
 
-    sendWebsocketMessage(type: string = 'transaction', responseMessage: ResponseMessage): void {
-
+    sendTransactionResponse(responseMessage: ResponseMessage, status?: string): void {
+        status = status || 'OK';
+        let robotSerialName: string = 'NA';
+        if (this.robotInfo) {
+            robotSerialName = this.robotInfo.serialName;
+        }
+        responseMessage.robotSerialName = robotSerialName;
+        let message: any = {
+            type: 'transaction',
+            status: status,
+            data: responseMessage
+        };
+        this.socketServer.broadcastMessage(message);
     }
 
     getNetworkTime(): number {
@@ -99,83 +123,30 @@ export default class RomManager extends EventEmitter {
     }
 
     onCommand(data: any) {
-        this.log.info(`received command message: `, data.command.type);
+        this.log.info(`received command message: `, data.command.type, data);
 
         if (data.command.type === 'interrupt') {
-            if (data.command.data.id) {
-                this.system.interruptById(data.command.data.id,() =>{
-                    this.sendOkResponse(data);
-                });
-            }else{
-              this.system.interruptAll(() => {
-                  this.sendOkResponse(data);
-              });
+            // TODO
+        } else {
+            let command = this.buildCommandHandler(data);
+            if (!command){
+                // TODO respond with an error
+                this.sendOkResponse(data);
             }
-        }
-
-        let command = this.buildCommandHandler(data);
-        if (!command){
-            // @TODO probably in this case we would want to respond with an error
-            this.sendOkResponse(data);
-            return;
-        }
-
-        if (this.system.readyForCommand(command) || data.command.type === "lookAt3D") {
-            this.system.runCommand(command);
-        }
-        else {
-            this.sendBusyRespononse(data);
         }
     }
 
     buildCommandHandler(data: any): CommandHandler {
 
         switch (data.command.type) {
-            case 'audio':
-                return new AudioCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'image':
-                return new ImageCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'hideImage':
-                return new HideImageCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'stopAudio':
-                return new StopAudioCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'asset':
-                return new AssetCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'attention': //TODO create CommandHandler
-                if (data.command.data.state) {
-                    switch (data.command.data.state) {
-                        case 'idle':
-                            this.attentionIdle();
-                            break;
-                        case 'off':
-                            this.attentionOff();
-                            break;
-                    }
-                }
-                this.sendOkResponse(data);
-                break;
-            case 'lookAt':
-                return new LookAtCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'lookAt3D':
-                return new LookAt3DCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             case 'tts':
                 return new TtsCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'animation':
-                return new AnimationCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'mim':
-                return new MimCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'photo':
-                return new PhotoCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'stream':
-                return new StreamCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'menu':
-                return new MenuCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             case 'ident':
                 return new IdentCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
-            case 'ringColour':
-                return new SetColourRing(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             case 'blink':
                 return new BlinkCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
+            case 'lookAt':
+                return new LookAtCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             default:
                 this.isReadyForCommand = true;
                 break;
@@ -192,12 +163,12 @@ export default class RomManager extends EventEmitter {
             responseData: undefined,
             robotSerialName: data.robotSerialName,
             sendTime: data.sendTime,
-            commandReceivedTime: ConnectionManager.instance.getNetworkTime(),
-            commandCompletedTime: ConnectionManager.instance.getNetworkTime(),
+            commandReceivedTime: this.getNetworkTime(),
+            commandCompletedTime: this.getNetworkTime(),
             status: 'ERROR',
             type: data.command.type
         }
-        ConnectionManager.instance.sendWebsocketMessage('transaction', responseMessage, 'BUSY');
+        this.sendTransactionResponse(responseMessage, 'BUSY');
     }
 
     sendOkResponse(data: any): void {
@@ -213,13 +184,12 @@ export default class RomManager extends EventEmitter {
             status: 'OK',
             type: data.command.type
         }
-        ConnectionManager.instance.sendWebsocketMessage('transaction', responseMessage, 'OK');
+        this.sendTransactionResponse(responseMessage, 'OK');
         this.isReadyForCommand = true;
     }
 
     onCommandHandlerCompleted(commandHandler: CommandHandler): void {
         this.log.info(`onCommandHandlerCompleted: ${commandHandler.type}:${commandHandler.id}`);
-        this.system.finishCommand(commandHandler);
         commandHandler.dispose();
     }
 }

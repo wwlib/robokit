@@ -2,7 +2,7 @@ import {EventEmitter} from 'events';
 const WebSocket = require('ws');
 const ip = require('ip');
 import { cert } from './ClientCertificate';
-import { Message, MessagePayload } from './SocketServer';
+import { Message } from './SocketServer';
 import AsyncToken from '../AsyncToken';
 
 export default class SocketClient extends EventEmitter {
@@ -84,11 +84,11 @@ export default class SocketClient extends EventEmitter {
             });
 
             this.webSocket.on('open', () => {
-                let payload: MessagePayload = {
+                let data: any = {
                     status: `OK`,
                     connectionString: `${this.connectionString}`
                 }
-                this.sendMessage(payload, 'handshake');
+                this.sendMessage(data, 'handshake');
                 this.emit('connected');
                 // this.clockSync.start();
             });
@@ -121,16 +121,17 @@ export default class SocketClient extends EventEmitter {
         }
     }
 
-    sendMessage(payload: MessagePayload, type: string = 'transaction'): AsyncToken<any> {
-        console.log(`sendMessage:`, payload);
+    sendMessage(data: any, type: string = 'transaction'): AsyncToken<any> {
+        console.log(`sendMessage:`, data);
         const token: AsyncToken<any> = new AsyncToken<any>();
         let currentTime: number = new Date().getTime();
         let message: Message = {
             client: 'test-client',
             id: this.nextMessageId++,
-            type: type,
-            payload: payload,
-            timestamp: currentTime
+            type: 'test-message',
+            data: data,
+            sendTime: currentTime,
+            status: 'OK'
         };
         token.complete = new Promise<any>((resolve: any, reject: any) => {
             if (this.webSocket) {

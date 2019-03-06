@@ -1,26 +1,18 @@
 import {EventEmitter} from 'events';
 import WebSocket = require('ws');
+const ip = require('ip');
 const fs = require('fs');
 const httpServ = require('https');
 const findRoot = require('find-root');
 const path = require('path');
 
-export type MessagePayload = {
-    command?: string;
-    prompt?: string;
-    data?: any;
-    status?: string;
-    // name?: string;
-    connectionString?: string;
-    requestTimestamp?: number;
-}
-
 export type Message = {
     client: string;
     id: number;
     type: string;
-    payload: MessagePayload;
-    timestamp: number;
+    data: any;
+    sendTime: number;
+    status: string;
 }
 
 export default class SocketServer extends EventEmitter {
@@ -36,6 +28,7 @@ export default class SocketServer extends EventEmitter {
     constructor(port: number = 9696) {
         super();
         this.port = port;
+        this.host = ip.address();
         this.onConnectionHandler = this.onConnection.bind(this);
         this.onMessageHandler = this.onMessage.bind(this);
         this.connections = [];
@@ -76,7 +69,7 @@ export default class SocketServer extends EventEmitter {
     }
 
     onConnection(socket: WebSocket): void {
-        console.log(`SocketServer: onConnection`); //, socket);
+        console.log(`SocketServer: onConnection`, socket.ip);
         socket.on('close', () => {
             console.log('SocketServer: on close');
             let i: number;
@@ -116,10 +109,11 @@ export default class SocketServer extends EventEmitter {
                 client: 'robokit',
                 id: -1,
                 type: 'handshake',
-                timestamp: currentTime,
-                payload: {
+                sendTime: currentTime,
+                data: {
                     requestTimestamp: message.timestamp
-                }
+                },
+                status: 'OK'
             }
 
             if (socket && (socket.readyState === WebSocket.OPEN)) {
@@ -143,8 +137,9 @@ export default class SocketServer extends EventEmitter {
                 console.log(`SocketServer: error: sync response: socket not defined or not open: `); //, socket);
             }
         } else if (message.type === 'transaction') {
-            console.log(`SocketServer: Received transaction from: ${message.client} id: ${message.id}`);
+            console.log(`SocketServer: Received transaction from: ${message.command.client} id: ${message.command.id}`);
             // console.log(JSON.stringify(message));
+            this.emit('transaction', message);
         }
         this.emit('message', message);
     }
@@ -199,6 +194,14 @@ export default class SocketServer extends EventEmitter {
               this.sendWsJson(socket, message);
             }
         });
+    }
+
+    getNetworkTime(): number {
+        let currentTime: number = new Date().getTime();
+        // if (this.clockSync) {
+        //     currentTime = this.clockSync._now();
+        // }
+        return currentTime;
     }
 
     dispose(): void {

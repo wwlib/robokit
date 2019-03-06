@@ -10,10 +10,19 @@ import NLUController, { NLUIntentAndEntities } from './NLUController';
 import LUISController from './microsoft/LUISController';
 import Hub from './skills/Hub';
 import PixijsManager from './pixijs/PixijsManager';
-import RomManager from './rom/RomManager';
+import RomManager, { RomManagerOptions, RobotInfo } from './rom/RomManager';
 
 PixijsManager.Instance().init();
 PixijsManager.Instance().start();
+
+const robotInfo: RobotInfo = {
+    type: 'robokit',
+    serialName: 'robokit'
+}
+const romManagerOptions: RomManagerOptions ={
+    robotInfo: robotInfo
+}
+RomManager.Instance(romManagerOptions).init();
 
 const audioContext = new AudioContext();
 
@@ -139,9 +148,4 @@ addButton("LookRight", eyeLookRight);
 startHotword();
 
 // Start Remote Operation Mode Server
-RomManager.Instance().init();
 RomManager.Instance().start();
-RomManager.Instance().on('say', ((prompt: string) => {
-    console.log(`received ROM command: say:`, prompt);
-    Hub.Instance().startTTS(prompt);
-}));

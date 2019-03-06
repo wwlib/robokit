@@ -1,9 +1,28 @@
 import {EventEmitter} from "events";
-import SocketServer, { Message, MessagePayload } from './SocketServer';
+import SocketServer, { Message } from './SocketServer';
 import { NLUIntentAndEntities } from '../NLUController';
+import { CommandHandler, ResponseMessage } from './commands/CommandHandler';
+import TtsCommandHandler from './commands/TtsCommandHandler';
+import IdentCommandHandler from './commands/IdentCommandHandler';
+import BlinkCommandHandler from './commands/BlinkCommandHandler';
+import LookAtCommandHandler from './commands/LookAtCommandHandler';
+import Log from '../utils/Log';
+import parentLog from '../log';
+
+export type RobotInfo = {
+    type: string;
+    serialName: string;
+    ip?: string;
+    port?: number;
+}
+
+export type RomEventData = {
+    event: string;
+    data?: any;
+}
 
 export type RomManagerOptions = {
-
+    robotInfo: RobotInfo
 }
 
 // Remote Operation Mode Manager
@@ -11,12 +30,20 @@ export default class RomManager extends EventEmitter {
 
     private static _instance: RomManager;
 
+    public log: Log;
     public socketServer: SocketServer;
+    public isReadyForCommand = true;
+    public robotInfo: RobotInfo;
     
-    private _onMessageHandler: any = this.onMessage.bind(this);
+    // private _onMessageHandler: any = this.onMessage.bind(this);
+    private _onCommandHandler: any = this.onCommand.bind(this);
 
     constructor(options?: RomManagerOptions) {
         super ();
+        if (options) {
+            this.robotInfo = options.robotInfo;
+        }
+        this.isReadyForCommand = true;
     }
 
     static Instance(options?: RomManagerOptions)
@@ -25,62 +52,144 @@ export default class RomManager extends EventEmitter {
     }
 
     init(): void {
-       
+        this.log = parentLog.createChild('rom-manager');
     }
 
     start(): void {
         this.socketServer = new SocketServer();
-        this.socketServer.on('message', this._onMessageHandler);
-    }
-
-    onMessage(message: Message): void {
-        console.log(`RomManager: onMessage:`, message);
-        const payload: MessagePayload = message.payload;
-
-        switch (payload.command) {
-            case 'say':
-                this.emit('say', payload.prompt);
-                break;
-        }
+        this.robotInfo.ip = this.socketServer.host;
+        this.robotInfo.port = this.socketServer.port;
+        this.socketServer.on('transaction', this._onCommandHandler);
     }
 
     onHotword(): void {
-        const payload: MessagePayload = {
-            command: 'hotword'
+        const data: RomEventData = {
+            event: 'hotword'
         }
-        this.sendMessage(payload);
+        this.sendRomEventMessage(data);
     }
 
     onUtterance(utterance: string): void {
-        const payload: MessagePayload = {
-            command: 'utterance',
+        const data: RomEventData = {
+            event: 'utterance',
             data: utterance
         }
-        this.sendMessage(payload);
+        this.sendRomEventMessage(data);
     }
 
     onNLU(intentAndEntities: NLUIntentAndEntities, utterance: string): void {
-        const payload: MessagePayload = {
-            command: 'nlu',
+        const data: RomEventData = {
+            event: 'nlu',
             data: {
                 intentAndEntities: intentAndEntities,
                 utterance: utterance
             }
         }
-        this.sendMessage(payload);
+        this.sendRomEventMessage(data);
     }
 
-    sendMessage(payload: MessagePayload): void {
+    sendRomEventMessage(data: RomEventData): void {
         if (this.socketServer) {
             let currentTime: number = new Date().getTime();
             let message: Message = {
                 client: 'robokit',
                 id: -1,
-                type: 'rom',
-                timestamp: currentTime,
-                payload: payload
+                type: 'rom-event',
+                sendTime: currentTime,
+                status: 'OK',
+                data: data
             }
             this.socketServer.broadcastMessage(message);
         }
+    }
+
+    sendTransactionResponse(responseMessage: ResponseMessage, status?: string): void {
+        status = status || 'OK';
+        let robotSerialName: string = 'NA';
+        if (this.robotInfo) {
+            robotSerialName = this.robotInfo.serialName;
+        }
+        responseMessage.robotSerialName = robotSerialName;
+        let message: any = {
+            type: 'transaction',
+            status: status,
+            data: responseMessage
+        };
+        this.socketServer.broadcastMessage(message);
+    }
+
+    getNetworkTime(): number {
+        return this.socketServer.getNetworkTime()
+    }
+
+    onCommand(data: any) {
+        this.log.info(`received command message: `, data.command.type, data);
+
+        if (data.command.type === 'interrupt') {
+            // TODO
+        } else {
+            let command = this.buildCommandHandler(data);
+            if (!command){
+                // TODO respond with an error
+                this.sendOkResponse(data);
+            }
+        }
+    }
+
+    buildCommandHandler(data: any): CommandHandler {
+
+        switch (data.command.type) {
+            case 'tts':
+                return new TtsCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
+            case 'ident':
+                return new IdentCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
+            case 'blink':
+                return new BlinkCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
+            case 'lookAt':
+                return new LookAtCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
+            default:
+                this.isReadyForCommand = true;
+                break;
+        }
+
+        return null;
+    }
+
+    sendBusyRespononse(data: any): void {
+        let responseMessage: ResponseMessage = {
+            id: data.command.id,
+            error: 'Rom skill is busy. Command ignored.',
+            response: undefined,
+            responseData: undefined,
+            robotSerialName: data.robotSerialName,
+            sendTime: data.sendTime,
+            commandReceivedTime: this.getNetworkTime(),
+            commandCompletedTime: this.getNetworkTime(),
+            status: 'ERROR',
+            type: data.command.type
+        }
+        this.sendTransactionResponse(responseMessage, 'BUSY');
+    }
+
+    sendOkResponse(data: any): void {
+        let responseMessage: ResponseMessage = {
+            id: data.command.id,
+            error: undefined,
+            response: undefined,
+            responseData: undefined,
+            robotSerialName: data.robotSerialName,
+            sendTime: data.sendTime,
+            commandReceivedTime: this.getNetworkTime(),
+            commandCompletedTime: this.getNetworkTime(),
+            status: 'OK',
+            type: data.command.type
+        }
+        this.sendTransactionResponse(responseMessage, 'OK');
+        this.isReadyForCommand = true;
+    }
+
+    onCommandHandlerCompleted(commandHandler: CommandHandler): void {
+        this.log.info(`onCommandHandlerCompleted: ${commandHandler.type}:${commandHandler.id}`);
+        commandHandler.dispose();
     }
 }

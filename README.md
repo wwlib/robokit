@@ -11,6 +11,8 @@ Note: This a work in progress.
 
 [Medium article about robokit](https://medium.com/@andrew.rapo/make-your-own-conversational-ai-social-robot-with-robokit-a-crude-approximation-of-jibo-10847e9a2661)
 
+see also: [https://github.com/wwlib/robocommander](https://github.com/wwlib/robocommander)
+
 [Demo Video - YouTube](https://youtu.be/r_Vzp8tXdkI)
 
 #### Config

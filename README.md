@@ -9,7 +9,7 @@ An electron app for transforming a device (i.e. Mac, Raspberry Pi, etc.) into a 
 Note: This a work in progress.
 
 
-[https://github.com/wwlib/robokit](https://github.com/wwlib/robokit)
+[Medium article about robokit](https://medium.com/@andrew.rapo/make-your-own-conversational-ai-social-robot-with-robokit-a-crude-approximation-of-jibo-10847e9a2661)
 
 [Demo Video - YouTube](https://youtu.be/r_Vzp8tXdkI)
 

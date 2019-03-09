@@ -1,9 +1,7 @@
 import STTController from './STTController';
-//import TTSController from './TTSController';
 import HotwordController, { HotwordResult } from './HotwordController';
 import AsyncToken from './AsyncToken';
 import BingSpeechApiController from './microsoft/BingSpeechApiController';
-import BingTTSController from './microsoft/BingTTSController';
 import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
 import NLUController, { NLUIntentAndEntities } from './NLUController';
@@ -23,8 +21,6 @@ const romManagerOptions: RomManagerOptions ={
     robotInfo: robotInfo
 }
 RomManager.Instance(romManagerOptions).init();
-
-const audioContext = new AudioContext();
 
 function startNLU(utterance: string) {
     const nluController: NLUController = new LUISController();

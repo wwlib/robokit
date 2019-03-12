@@ -183,12 +183,12 @@ export default class SocketServer extends EventEmitter {
                 json = null;
             }
         }
-        // console.log(`SocketServer: sendWsJson: json: `, json);
+        console.log(`SocketServer: sendWsJson: json: `, json);
         socket.send(json);
     }
 
     broadcastMessage(message: any): void {
-        // console.log(`SocketServer: broadcastMessage:`, message, this.connections);
+        console.log(`SocketServer: broadcastMessage:`, message, this.connections);
         this.connections.forEach((socket: WebSocket) => {
             if (socket.readyState === WebSocket.OPEN) {
               //socket.send(message);

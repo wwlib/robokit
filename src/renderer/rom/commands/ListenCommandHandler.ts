@@ -1,11 +1,11 @@
 import { CommandHandler } from './CommandHandler';
 import Log from '../../utils/Log';
-import PixijsManager from '../../pixijs/PixijsManager';
+import Hub from '../../skills/Hub';
 
 export default class ListenCommandHandler extends CommandHandler {
 
     constructor(commandObj: any, parentLog: Log, callback: any) {
-        super(commandObj, parentLog, 'blink', callback);
+        super(commandObj, parentLog, 'listen', callback);
     }
 
     isValidCommand(commandObj: any): boolean {
@@ -20,7 +20,7 @@ export default class ListenCommandHandler extends CommandHandler {
 
     handleCommand(): void {
         this.log.info(`handleCommand:`);
-        // TODO start listening...
+        Hub.Instance().startRecognizer();
         this.onCompleted();
     }
 

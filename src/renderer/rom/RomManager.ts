@@ -6,8 +6,10 @@ import TtsCommandHandler from './commands/TtsCommandHandler';
 import IdentCommandHandler from './commands/IdentCommandHandler';
 import BlinkCommandHandler from './commands/BlinkCommandHandler';
 import LookAtCommandHandler from './commands/LookAtCommandHandler';
+import ListenCommandHandler from './commands/ListenCommandHandler';
 import Log from '../utils/Log';
 import parentLog from '../log';
+import Hub from '../skills/Hub';
 
 export type RobotInfo = {
     type: string;
@@ -56,6 +58,7 @@ export default class RomManager extends EventEmitter {
     }
 
     start(): void {
+        console.log(`RomManager: start`);
         this.socketServer = new SocketServer();
         this.robotInfo.ip = this.socketServer.host;
         this.robotInfo.port = this.socketServer.port;
@@ -124,7 +127,6 @@ export default class RomManager extends EventEmitter {
 
     onCommand(data: any) {
         this.log.info(`received command message: `, data.command.type, data);
-
         if (data.command.type === 'interrupt') {
             // TODO
         } else {
@@ -147,6 +149,10 @@ export default class RomManager extends EventEmitter {
                 return new BlinkCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             case 'lookAt':
                 return new LookAtCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
+            case 'listen':
+                Hub.Instance().startRecognizer();
+                return null
+                // return new ListenCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             default:
                 this.isReadyForCommand = true;
                 break;

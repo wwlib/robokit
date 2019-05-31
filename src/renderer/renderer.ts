@@ -1,4 +1,4 @@
-import STTController from './STTController';
+import ASRController from './ASRController';
 //import TTSController from './TTSController';
 import HotwordController, { HotwordResult } from './HotwordController';
 import AsyncToken from './AsyncToken';
@@ -43,8 +43,8 @@ function startNLU(utterance: string) {
 }
 
 function startRecognizer() {
-	// const speechController: STTController = new MicrosoftSpeechController();
-    const speechController: STTController = new BingSpeechApiController();
+	// const speechController: ASRController = new MicrosoftSpeechController();
+    const speechController: ASRController = new BingSpeechApiController();
 	let t: AsyncToken<string> = speechController.RecognizerStart({recordDuration: 3000});
 
     t.on('Listening', () => {

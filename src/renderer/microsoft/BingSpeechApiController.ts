@@ -1,6 +1,6 @@
 
 import { BingSpeechClient, VoiceRecognitionResponse } from 'bingspeech-api-client';
-import STTController from '../STTController';
+import ASRController from '../ASRController';
 import AsyncToken from '../AsyncToken';
 const findRoot = require('find-root');
 const fs = require('fs');
@@ -10,7 +10,7 @@ const root = findRoot(__dirname);
 const configFile = root + '/data/config.json';
 const config: any = require(configFile);
 
-export default class BingSpeechApiController extends STTController{
+export default class BingSpeechApiController extends ASRController{
 
     constructor() {
         super();
@@ -25,7 +25,7 @@ export default class BingSpeechApiController extends STTController{
         let token = new AsyncToken<string>();
         token.complete = new Promise<string>((resolve: any, reject: any) => {
             process.nextTick(() => {token.emit('Listening');});
-            let client = new BingSpeechClient(config.Microsoft.BingSTTSubscriptionKey);
+            let client = new BingSpeechClient(config.Microsoft.BingSubscriptionKey);
             let liveStream = record
                 .start({
                     sampleRateHertz: 16000,

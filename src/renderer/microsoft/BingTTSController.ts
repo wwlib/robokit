@@ -30,7 +30,7 @@ export default class BingTTSController extends TTSController{
         let token = new AsyncToken<string>();
         token.complete = new Promise<string>((resolve: any, reject: any) => {
             process.nextTick(() => {token.emit('Synthesizing');});
-            let client = new BingSpeechClient(config.Microsoft.BingSTTSubscriptionKey);
+            let client = new BingSpeechClient(config.Microsoft.BingSubscriptionKey);
             let file = fs.createWriteStream('tts-out.wav');
             client.synthesizeStream(text).then(audioStream => {
                 token.emit('SynthesisEndedEvent');

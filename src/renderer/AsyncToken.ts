@@ -7,4 +7,9 @@ export default class AsyncToken<T> extends EventEmitter {
     constructor() {
         super();
     }
+
+    dispose(): void {
+        this.complete = undefined;
+        this.removeAllListeners();
+    }
 }

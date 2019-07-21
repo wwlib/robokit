@@ -73,4 +73,4 @@ addButton("LookRight", eyeLookRight);
 RomManager.Instance().start();
 
 Hub.Instance().init();
-Hub.Instance().startHotword();
+// Hub.Instance().startHotword();

@@ -86,4 +86,11 @@ export default class SnowboyController extends HotwordController{
 		return token;
 	}
 
+	dispose() {
+		record.stop();
+		this.models = undefined;
+		this.detector = undefined
+		this.mic = undefined;
+	}
+
 }

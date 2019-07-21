@@ -150,7 +150,8 @@ export default class RomManager extends EventEmitter {
             case 'lookAt':
                 return new LookAtCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             case 'listen':
-                Hub.Instance().startRecognizer();
+                // Hub.Instance().startRecognizer();
+                console.log(`LISTEN`);
                 return null
                 // return new ListenCommandHandler(data.command, this.log, this.onCommandHandlerCompleted.bind(this));
             default:

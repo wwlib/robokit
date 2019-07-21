@@ -183,12 +183,13 @@ export default class SocketServer extends EventEmitter {
                 json = null;
             }
         }
-        console.log(`SocketServer: sendWsJson: json: `, json);
+        // console.log(`SocketServer: sendWsJson: json: `, json);
         socket.send(json);
     }
 
     broadcastMessage(message: any): void {
         console.log(`SocketServer: broadcastMessage:`, message, this.connections);
+        console.trace();
         this.connections.forEach((socket: WebSocket) => {
             if (socket.readyState === WebSocket.OPEN) {
               //socket.send(message);
@@ -212,7 +213,7 @@ export default class SocketServer extends EventEmitter {
         this.connections = null;
 
         this.socketServer.close(() => {
-            this.socketServer.removeAllListeners;
+            this.socketServer.removeAllListeners();
             this.socketServer = null;
         });
         this.onConnectionHandler = null;

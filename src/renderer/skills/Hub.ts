@@ -21,10 +21,19 @@ export type HubOptions = {
 
 }
 
+export enum HubState {
+    OFF = "OFF",
+    HOTWORD = "HOTWORD",
+    RECOGNIZER = "RECOGNIZER",
+    NLU = "NLU",
+    SKILL = "SKILL"
+}
+
 export default class Hub extends EventEmitter {
 
     private static _instance: Hub;
 
+    public state: HubState;
     public skillMap: Map<string, Skill | undefined>;
     public launchIntentMap: Map<string,  Skill | undefined>;
     public luisController = new LUISController();
@@ -32,6 +41,9 @@ export default class Hub extends EventEmitter {
     public startTickTime: number;
     public previousTickTime: number;
     public audioContext: AudioContext;
+
+    // private _startHotword: any = this.startHotword.bind(this);
+    // private _startRecognizer: any = this.startRecognizer.bind(this);
 
     constructor(options?: HubOptions) {
         super ();
@@ -46,6 +58,7 @@ export default class Hub extends EventEmitter {
         this.previousTickTime = this.startTickTime;
         // TODO
         // this.tickInterval = setInterval(this.tick.bind(this), 1000);
+        this.state = HubState.OFF;
     }
 
     static Instance(options?: HubOptions)
@@ -54,7 +67,9 @@ export default class Hub extends EventEmitter {
     }
 
     init(): void {
-
+        process.nextTick(() => {
+            Hub.Instance().startHotword()
+        })
     }
 
     tick(): void {
@@ -104,9 +119,11 @@ export default class Hub extends EventEmitter {
         t.complete
             .then((result: string) => {
                 // console.log(`SYNTHESIS RESULT: ${result}`);
+                t.dispose();
             })
             .catch((error: any) => {
                 console.log(error);
+                t.dispose();
             });
     }
 
@@ -120,16 +137,26 @@ export default class Hub extends EventEmitter {
                 console.log(`NLUIntentAndEntities: `, intentAndEntities);
                 RomManager.Instance().onNLU(intentAndEntities, utterance);
                 Hub.Instance().handleLaunchIntent(intentAndEntities, utterance);
+                t.dispose();
             })
             .catch((error: any) => {
                 console.log(error);
+                t.dispose();
             });
     }
 
     startRecognizer() {
+        this.state = HubState.RECOGNIZER;
+        // process.nextTick(() => {
+        //     PixijsManager.Instance().eyeShowHighlight();
+        //     Hub.Instance().startHotword();
+        // })
         PixijsManager.Instance().eyeShowHighlight();
         setTimeout(() => {
-            this.startHotword();
+            process.nextTick(() => {
+                this.state = HubState.OFF;
+                Hub.Instance().startHotword()
+            });
         }, 1000);
         // const speechController: STTController = new BingSpeechApiController();
         // let t: AsyncToken<string> = speechController.RecognizerStart({recordDuration: 3000});
@@ -152,11 +179,14 @@ export default class Hub extends EventEmitter {
         //         console.log(`Utterance: ${utterance}`);
         //         if (utterance) {
         //             RomManager.Instance().onUtterance(utterance);
-        //             this.startNLU(utterance);
+        //             // this.startNLU(utterance);
+        //             process.nextTick(() => this._startNLU(utterance)); 
         //         }
+        //        t.dispose();
         //     })
         //     .catch((error: any) => {
         //         console.log(error);
+        //        t.dispose();
         //     });
     
     }
@@ -164,27 +194,39 @@ export default class Hub extends EventEmitter {
     startHotword() {
         console.log(`START HOTWORD`);
         console.trace();
+        this.state = HubState.HOTWORD;
         const hotwordController: HotwordController = new SnowboyController();
         let t: AsyncToken<HotwordResult> = hotwordController.RecognizerStart({sampleRate: 16000});
         PixijsManager.Instance().eyeBlink();
         PixijsManager.Instance().eyeShowHighlight(false);
     
-        t.on('Listening', () => {
+        t.once('Listening', () => {
             //console.log(`renderer: startHotword: on Listening`);
         });
     
-        t.on('hotword', () => {
-            //console.log(`renderer: startHotword: on hotword: `, eyeInstance);
-            RomManager.Instance().onHotword();
-        });
+        // t.once('hotword', () => {
+        //     //console.log(`renderer: startHotword: on hotword: `, eyeInstance);
+            
+        // });
     
         t.complete
             .then((result: HotwordResult) => {
                 // console.log(`HotWord: result:`, result);
-                this.startRecognizer();
+                // process.nextTick(this._startRecognizer);
+                RomManager.Instance().onHotword();
+                hotwordController.dispose();
+                t.dispose();
+                if (this.state == HubState.HOTWORD) {
+                    Hub.Instance().startRecognizer();
+                }
             })
             .catch((error: any) => {
                 console.log(error);
+                if (this.state == HubState.HOTWORD) {
+                    this.state = HubState.OFF
+                }
+                hotwordController.dispose();
+                t.dispose();
             });
     }
 

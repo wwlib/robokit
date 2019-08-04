@@ -1,10 +1,16 @@
 const BingTTSController = require('../dist/renderer/microsoft/BingTTSController').default;
 const config = require('../data/config.json');
 
-console.log(BingTTSController);
+// console.log(BingTTSController);
 console.log(config);
 
 bingTTSController = new BingTTSController();
+
+// console.log(bingTTSController);
+// bingTTSController.client.issueToken()
+//     .then((token) => {
+//         console.log(`token:`, token);
+//     })
 
 const token = bingTTSController.SynthesizerStart("This is a test of bing t t s");
 

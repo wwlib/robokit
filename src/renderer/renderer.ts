@@ -43,8 +43,10 @@ function startNLU(utterance: string) {
 }
 
 function startRecognizer() {
-	// const speechController: ASRController = new MicrosoftSpeechController();
+    // const speechController: ASRController = new MicrosoftSpeechController();
+    console.log(`@@@@@@@@ renderer: startRecognizer`);
     const speechController: ASRController = new BingSpeechApiController();
+    console.log(`@@@@@@@@ renderer: startRecognizer: speechController.RecognizerStart`);
 	let t: AsyncToken<string> = speechController.RecognizerStart({recordDuration: 3000});
 
     t.on('Listening', () => {

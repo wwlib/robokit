@@ -1,5 +1,5 @@
 
-import { BingSpeechClient, VoiceRecognitionResponse } from 'bingspeech-api-client';
+import { AzureSpeechClient, VoiceRecognitionResponse } from 'cognitiveserviceslib';
 import ASRController from '../ASRController';
 import AsyncToken from '../AsyncToken';
 const findRoot = require('find-root');
@@ -12,11 +12,11 @@ const config: any = require(configFile);
 
 export default class BingSpeechApiController extends ASRController {
 
-    public client: BingSpeechClient;
+    public client: AzureSpeechClient;
 
     constructor() {
         super();
-        this.client = new BingSpeechClient(config.Microsoft.AzureSpeechSubscriptionKey);
+        this.client = new AzureSpeechClient(config.Microsoft.AzureSpeechSubscriptionKey);
     }
 
     RecognizeWaveBuffer(wave: Buffer): AsyncToken<string> {

@@ -1,12 +1,13 @@
-const LUISController = require('../dist/renderer/microsoft/LUISController').default;
+// const LUISController = require('../dist/renderer/microsoft/LUISController').default;
+const { LUISController } = require('cognitiveserviceslib');
 const config = require('../data/config.json');
 
-console.log(LUISController);
+console.log(`LUISController:`, LUISController);
 console.log(config);
 
-luisController = new LUISController();
+luisController = new LUISController(config);
 
-luisController.config = config;
+// luisController.config = config;
 
 const token = luisController.getIntentAndEntities('what time is it');
 token.complete

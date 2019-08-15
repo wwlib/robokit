@@ -1,4 +1,4 @@
-import NLUController, { NLUIntentAndEntities, NLURequestOptions, NLULanguageCode } from '../NLUController';
+import { NLUController, NLUIntentAndEntities, NLURequestOptions, NLULanguageCode } from 'cognitiveserviceslib';
 import AsyncToken from '../AsyncToken';
 
 const request = require('request');

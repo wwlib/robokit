@@ -1,5 +1,5 @@
 
-import { BingSpeechClient, VoiceRecognitionResponse } from 'bingspeech-api-client';
+import { AzureSpeechClient, VoiceRecognitionResponse } from 'cognitiveserviceslib';
 import TTSController from '../TTSController';
 import AsyncToken from '../AsyncToken';
 const findRoot = require('find-root');
@@ -13,7 +13,7 @@ export default class BingTTSController extends TTSController{
 
     public audioContext: AudioContext;
     public masterVolumeGainNode: GainNode;
-    public client: BingSpeechClient;
+    public client: AzureSpeechClient;
 
     constructor(audioContext: AudioContext) {
         super();
@@ -24,7 +24,7 @@ export default class BingTTSController extends TTSController{
             this.masterVolumeGainNode.gain.value = 1.0;
             this.masterVolumeGainNode.connect(this.audioContext.destination);
         }
-        this.client = new BingSpeechClient(config.Microsoft.AzureSpeechSubscriptionKey);
+        this.client = new AzureSpeechClient(config.Microsoft.AzureSpeechSubscriptionKey);
     }
 
     SynthesizerStart(text: string, options?: any): AsyncToken<string> {

@@ -1,6 +1,6 @@
 import {EventEmitter} from "events";
 import SocketServer, { Message } from './SocketServer';
-import { NLUIntentAndEntities } from '../NLUController';
+import { NLUIntentAndEntities } from 'cognitiveserviceslib';
 import { CommandHandler, ResponseMessage } from './commands/CommandHandler';
 import TtsCommandHandler from './commands/TtsCommandHandler';
 import IdentCommandHandler from './commands/IdentCommandHandler';

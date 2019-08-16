@@ -1,7 +1,7 @@
 const record = require('node-record-lpcm16');
 import { Detector, Models } from 'snowboy';
-import HotwordController, { HotwordResult } from '../HotwordController';
-import AsyncToken from '../AsyncToken';
+import {HotwordController, HotwordResult } from 'cognitiveserviceslib';
+import { AsyncToken } from 'cognitiveserviceslib';
 const path = require('path');
 const findRoot = require('find-root');
 

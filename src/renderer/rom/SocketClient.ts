@@ -3,7 +3,7 @@ const WebSocket = require('ws');
 const ip = require('ip');
 import { cert } from './ClientCertificate';
 import { Message } from './SocketServer';
-import AsyncToken from '../AsyncToken';
+import { AsyncToken } from 'cognitiveserviceslib';
 
 export default class SocketClient extends EventEmitter {
 

@@ -1,5 +1,5 @@
 import Skill from './Skill';
-import NLUController, { NLUIntentAndEntities } from '../NLUController';
+import { NLUIntentAndEntities } from 'cognitiveserviceslib';
 import Hub from './Hub';
 
 export default class ClockSkill extends Skill {

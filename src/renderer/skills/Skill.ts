@@ -1,4 +1,4 @@
-import NLUController, { NLUIntentAndEntities } from '../NLUController';
+import { NLUIntentAndEntities } from 'cognitiveserviceslib';
 import Hub from './Hub';
 
 export default abstract class Skill {

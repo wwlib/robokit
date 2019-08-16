@@ -39,12 +39,9 @@
   },
   "dependencies": {
     "@types/pixi.js": "^4.8.0",
-    "bingspeech-api-client": "^2.5.0",
-    "cognitiveserviceslib": "wwlib/cognitiveserviceslib",
+    "cognitiveserviceslib": "wwlib/cognitiveserviceslib#0.0.2",
     "ip": "^1.1.5",
-    "microsoft-cognitiveservices-speech-sdk": "^1.6.0",
     "nan": "^2.10.0",
-    "node-record-lpcm16": "^0.3.0",
     "pixi-animate": "^1.3.3",
     "pixi.js": "^4.8.1",
     "react": "^16.4.1",

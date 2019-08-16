@@ -1,17 +1,17 @@
 import {EventEmitter} from "events";
 import Skill from './Skill';
-import TTSController from '../TTSController';
-import AsyncToken from '../AsyncToken';
-import BingTTSController from '../microsoft/BingTTSController';
-import NLUController, { NLUIntentAndEntities } from '../NLUController';
-import LUISController from '../microsoft/LUISController';
+import { TTSController } from 'cognitiveserviceslib';
+import { AsyncToken } from 'cognitiveserviceslib';
+import { AzureTTSController } from 'cognitiveserviceslib';
+import { NLUIntentAndEntities } from 'cognitiveserviceslib';
+import { LUISController } from 'cognitiveserviceslib';
 
 import ClockSkill from './ClockSkill';
 import JokeSkill from './JokeSkill';
 import FavoriteRobotSkill from './FavoriteRobotSkill';
 
 export type HubOptions = {
-
+    config: any
 }
 
 export default class Hub extends EventEmitter {
@@ -20,17 +20,21 @@ export default class Hub extends EventEmitter {
 
     public skillMap: Map<string, Skill | undefined>;
     public launchIntentMap: Map<string,  Skill | undefined>;
-    public luisController = new LUISController();
+    public luisController: LUISController;
     public tickInterval: any;
     public startTickTime: number;
     public previousTickTime: number;
     public audioContext: AudioContext;
+
+    private _config: any;
 
     constructor(options?: HubOptions) {
         super ();
         this.skillMap = new Map<string, Skill>();
         this.launchIntentMap = new Map<string, Skill>();
         this.audioContext = new AudioContext();
+        this._config = options.config;
+        this.luisController= new LUISController(this._config)
         this.registerSkill(new JokeSkill());
         this.registerSkill(new ClockSkill());
         this.registerSkill(new FavoriteRobotSkill());
@@ -78,7 +82,7 @@ export default class Hub extends EventEmitter {
     }
 
     startTTS(prompt: string) {
-        const ttsController: TTSController = new BingTTSController(this.audioContext);
+        const ttsController: TTSController = new AzureTTSController(this._config, this.audioContext);
         let t: AsyncToken<string> = ttsController.SynthesizerStart(prompt);
 
         t.on('Synthesizing', () => {

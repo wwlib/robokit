@@ -1,19 +1,22 @@
-import ASRController from './ASRController';
+import { ASRController } from 'cognitiveserviceslib';
 //import TTSController from './TTSController';
-import HotwordController, { HotwordResult } from './HotwordController';
-import AsyncToken from './AsyncToken';
-import BingSpeechApiController from './microsoft/BingSpeechApiController';
-import BingTTSController from './microsoft/BingTTSController';
+import { HotwordController, HotwordResult } from 'cognitiveserviceslib';
+import { AsyncToken } from 'cognitiveserviceslib';
+import { AzureSpeechApiController } from 'cognitiveserviceslib';
+import { AzureTTSController } from 'cognitiveserviceslib';
 import SnowboyController from './snowboy/SnowboyController';
 import WwMusicController from './ww/WwMusicController';
-import NLUController, { NLUIntentAndEntities } from './NLUController';
-import LUISController from './microsoft/LUISController';
+import { NLUController, NLUIntentAndEntities } from 'cognitiveserviceslib';
+import { LUISController } from 'cognitiveserviceslib';
 import Hub from './skills/Hub';
 import PixijsManager from './pixijs/PixijsManager';
 import RomManager, { RomManagerOptions, RobotInfo } from './rom/RomManager';
 
+const config = require('../../data/config.json');
+
 PixijsManager.Instance().init();
 PixijsManager.Instance().start();
+Hub.Instance({config: config});
 
 const robotInfo: RobotInfo = {
     type: 'robokit',
@@ -27,7 +30,7 @@ RomManager.Instance(romManagerOptions).init();
 const audioContext = new AudioContext();
 
 function startNLU(utterance: string) {
-    const nluController: NLUController = new LUISController();
+    const nluController: NLUController = new LUISController(config);
 
     let t: AsyncToken<NLUIntentAndEntities> = nluController.getIntentAndEntities(utterance);
 
@@ -45,7 +48,7 @@ function startNLU(utterance: string) {
 function startRecognizer() {
     // const speechController: ASRController = new MicrosoftSpeechController();
     console.log(`@@@@@@@@ renderer: startRecognizer`);
-    const speechController: ASRController = new BingSpeechApiController();
+    const speechController: ASRController = new AzureSpeechApiController(config);
     console.log(`@@@@@@@@ renderer: startRecognizer: speechController.RecognizerStart`);
 	let t: AsyncToken<string> = speechController.RecognizerStart({recordDuration: 3000});
 

@@ -1,6 +1,6 @@
 {
   "name": "robokit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A minimal Electron 'robot' written with Typescript. Runs on a Raspberry Pi",
   "scripts": {
     "build": "tsc",

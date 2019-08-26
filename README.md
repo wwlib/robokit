@@ -27,8 +27,9 @@ see also: [https://github.com/wwlib/robocommander](https://github.com/wwlib/robo
 ```
 yarn
 yarn rebuild (see below)
-yarn build
 yarn start
+...
+yarn restart
 ```
 
 #### Dependencies

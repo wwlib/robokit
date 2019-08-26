@@ -1,6 +1,6 @@
 {
   "name": "robokit",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A minimal Electron 'robot' written with Typescript. Runs on a Raspberry Pi",
   "scripts": {
     "build": "tsc",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@types/pixi.js": "^4.8.0",
-    "cognitiveserviceslib": "wwlib/cognitiveserviceslib#0.0.2",
+    "cognitiveserviceslib": "wwlib/cognitiveserviceslib#0.0.3",
     "ip": "^1.1.5",
     "nan": "^2.10.0",
     "pixi-animate": "^1.3.3",

@@ -354,9 +354,9 @@ code-point-at@^1.0.0:
   resolved "https://registry.npmjs.org/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-cognitiveserviceslib@wwlib/cognitiveserviceslib#0.0.2:
-  version "0.0.2"
-  resolved "https://codeload.github.com/wwlib/cognitiveserviceslib/tar.gz/06836750c1363a2fc3e36e86201edf313f34260a"
+cognitiveserviceslib@wwlib/cognitiveserviceslib#0.0.3:
+  version "0.0.3"
+  resolved "https://codeload.github.com/wwlib/cognitiveserviceslib/tar.gz/6e9f3d9fc5976c08fc51234dcaec2ffcd6dcbccf"
   dependencies:
     axios "^0.18.0"
     needle "^2.4.0"

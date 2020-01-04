@@ -18,7 +18,7 @@ see also: [https://github.com/wwlib/robocommander](https://github.com/wwlib/robo
 #### Config
 
 - duplicate `data/config-example.json` and rename it `config.json`  
-- add your Bing STT subscription key
+- add your Azure subscription key
 - add your LUIS credentials
 - (optional) upload `docs/LUIS-knowledge-graph.json` to LUIS to configure a new NLU app
 
@@ -28,6 +28,8 @@ see also: [https://github.com/wwlib/robocommander](https://github.com/wwlib/robo
 yarn
 yarn rebuild (see below)
 yarn start
+...
+yarn restart
 ```
 
 #### Dependencies
@@ -56,7 +58,7 @@ Say
 RoboKit uses:
 - Snowboy ([https://www.npmjs.com/package/snowboy](https://www.npmjs.com/package/snowboy)) for **hotword** detection.
 - Pixi.js ([https://www.npmjs.com/package/pixi.js](https://www.npmjs.com/package/pixi.js)) for screen animation
-- BingSTT, BingTTS [https://azure.microsoft.com/en-us/services/cognitive-services/](https://azure.microsoft.com/en-us/services/cognitive-services/)
+- Azure ASR (STT), Azure TTS [https://azure.microsoft.com/en-us/services/cognitive-services/](https://azure.microsoft.com/en-us/services/cognitive-services/)
 - LUIS NLU [https://www.luis.ai/](https://www.luis.ai/_)
 
 #### License

@@ -1,6 +1,9 @@
 {
     "Microsoft": {
-        "BingSTTSubscriptionKey": "<YOUR-BING-SUBSCRIPTION-KEY>",
+        "AzureSpeechSubscriptionKey": "<YOUR-AZURE-SUBSCRIPTION-KEY>",
+        "AzureSpeechTokenEndpoint": "https://azurespeechserviceeast.cognitiveservices.azure.com/sts/v1.0/issuetoken",
+        "AzureSpeechEndpointStt": "https://eastus.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1",
+        "AzureSpeechEndpointTts": "https://eastus.tts.speech.microsoft.com/cognitiveservices/v1",
         "nluLUIS_endpoint": "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/",
         "nluLUIS_appId": "<YOUR-LUIS-APP-ID>",
         "nluLUIS_subscriptionKey": "<YOUR-LUIS-SUBSCRIPTION-KEY>"

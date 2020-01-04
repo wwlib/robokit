@@ -1,15 +1,33 @@
+import {
+    AsyncToken,
+    ASRController,
+    ASRResponse,
+    AzureSpeechApiController,
+    NLUController,
+    NLUIntentAndEntities,
+    LUISController,
+    AzureTTSController,
+    HotwordController,
+    HotwordResult,
+} from 'cognitiveserviceslib';
+
+import SnowboyController from './snowboy/SnowboyController';
+import WwMusicController from './ww/WwMusicController';
 import Hub from './skills/Hub';
 import PixijsManager from './pixijs/PixijsManager';
 import RomManager, { RomManagerOptions, RobotInfo } from './rom/RomManager';
 
+const config = require('../../data/config.json');
+
 PixijsManager.Instance().init();
 PixijsManager.Instance().start();
+Hub.Instance({ config: config });
 
 const robotInfo: RobotInfo = {
     type: 'robokit',
     serialName: 'robokit'
 }
-const romManagerOptions: RomManagerOptions ={
+const romManagerOptions: RomManagerOptions = {
     robotInfo: robotInfo
 }
 RomManager.Instance(romManagerOptions).init();
@@ -47,7 +65,7 @@ function eyeIdle() {
 }
 
 function eyeListen() {
-	PixijsManager.Instance().eyeIdle();
+    PixijsManager.Instance().eyeIdle();
     PixijsManager.Instance().eyeShowHighlight();
 }
 

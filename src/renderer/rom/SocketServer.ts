@@ -25,7 +25,7 @@ export default class SocketServer extends EventEmitter {
     public onMessageHandler: any;
     public namedConnections: Map<string, WebSocket>;
 
-    constructor(port: number = 9696) {
+    constructor(port: number = 7160) { // 9696
         super();
         this.port = port;
         this.host = ip.address();
@@ -57,7 +57,7 @@ export default class SocketServer extends EventEmitter {
         }, processRequest ).listen( cfg.port );
 
 
-        console.log(`SocketServer: starting server: port ${this.port}`);
+        console.log(`SocketServer: starting server: host: ${this.host}, port ${this.port}`);
         this.socketServer = new WebSocket.Server({
             server: app,
         });
@@ -189,7 +189,7 @@ export default class SocketServer extends EventEmitter {
 
     broadcastMessage(message: any): void {
         console.log(`SocketServer: broadcastMessage:`, message, this.connections);
-        console.trace();
+        // console.trace();
         this.connections.forEach((socket: WebSocket) => {
             if (socket.readyState === WebSocket.OPEN) {
               //socket.send(message);

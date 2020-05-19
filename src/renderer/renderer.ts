@@ -34,7 +34,11 @@ RomManager.Instance(romManagerOptions).init();
 
 function addButton(type: string, handler: any): void {
 
-	var element = document.createElement("input");
+    var element = document.createElement("button");
+    element.innerText = type;
+    element.style.width = '100px';
+    element.style['border-radius'] = '2px';
+    element.style.margin = '1px';
 	element.type = type;
 	element.value = type;
 	element.name = type;
@@ -51,12 +55,17 @@ function startHotword() {
     Hub.Instance().startHotword();
 }
 
+function forceHotword() {
+    Hub.Instance().forceHotword();
+}
+
 function startMusic() {
     Hub.Instance().startMusic();
 }
 
 addButton("Speech", startRecognizer);
 addButton("Hotword", startHotword);
+addButton("Force", forceHotword);
 addButton("Music", startMusic);
 
 function eyeIdle() {
@@ -91,4 +100,3 @@ addButton("LookRight", eyeLookRight);
 RomManager.Instance().start();
 
 Hub.Instance().init();
-// Hub.Instance().startHotword();

@@ -35,7 +35,7 @@ export enum HubState {
     RECOGNIZER_ERROR = "RECOGNIZER_ERROR",
     NLU = "NLU",
     NLU_ERROR = "NLU_ERROR",
-    LAUNCH = "NLU_ERROR",
+    LAUNCH = "LAUNCH",
     LAUNCH_ERROR = "LAUNCH_ERROR",
     // SKILL = "SKILL"
 }
@@ -68,7 +68,7 @@ export default class Hub extends EventEmitter {
 
     constructor(options?: HubOptions) {
         super ();
-        console.log(`HUB: CONSTRUCTOR!!`);
+        // console.log(`HUB: CONSTRUCTOR!!`);
         this.skillMap = new Map<string, Skill>();
         this.launchIntentMap = new Map<string, Skill>();
         this.audioContext = new AudioContext();
@@ -81,7 +81,7 @@ export default class Hub extends EventEmitter {
         this.previousTickTime = this.startTickTime;
         // TODO
         // this.tickInterval = setInterval(this.tick.bind(this), 1000);
-        this.state = HubState.OFF;
+        this.setState(HubState.OFF);
     }
 
     static Instance(options?: HubOptions) {
@@ -89,9 +89,9 @@ export default class Hub extends EventEmitter {
     }
 
     init(): void {
-        process.nextTick(() => {
-            Hub.Instance().startHotword()
-        })
+        setImmediate(() => {
+            Hub.Instance().startHotword();
+        });
     }
 
     tick(): void {
@@ -103,6 +103,12 @@ export default class Hub extends EventEmitter {
                 skill.tick(frameTime, elapsedTime);
             }
         });
+    }
+
+    setState(state: HubState) {
+        const currentState: HubState = this.state;
+        this.state = state;
+        console.log(`Hub: setState: ${currentState} -> ${this.state}`);
     }
 
 
@@ -118,13 +124,16 @@ export default class Hub extends EventEmitter {
     }
 
     handleLaunchIntent(intentAndEntities: NLUIntentAndEntities, utterance: string): void {
-        this.state = HubState.LAUNCH;
+        this.setState(HubState.LAUNCH);
         let launchIntent = intentAndEntities.intent;
         let skill: Skill | undefined = this.launchIntentMap.get(launchIntent);
         if (skill) {
             skill.launch(intentAndEntities, utterance);
             skill.running = true;
         }
+        setImmediate(() => {
+            Hub.Instance().startHotword();
+        });
     }
 
     startTTS(prompt: string) {
@@ -166,7 +175,7 @@ export default class Hub extends EventEmitter {
     }
 
     startNLU(utterance: string) {
-        this.state = HubState.NLU;
+        this.setState(HubState.NLU);
         const nluController: NLUController = new LUISController(this._config);
     
         let t: AsyncToken<NLUIntentAndEntities> = nluController.getIntentAndEntities(utterance);
@@ -182,14 +191,17 @@ export default class Hub extends EventEmitter {
                 t.dispose();
             })
             .catch((error: any) => {
-                this.state = HubState.NLU_ERROR;
+                this.setState(HubState.NLU_ERROR);
                 console.log(error);
                 t.dispose();
+                setImmediate(() => {
+                    Hub.Instance().startHotword();
+                });
             });
     }
    
     startRecognizer() {
-        this.state = HubState.RECOGNIZER;
+        this.setState(HubState.RECOGNIZER);
         PixijsManager.Instance().eyeShowHighlight();
         this._timeLog = {
             timeStart: new Date().getTime(),
@@ -200,9 +212,9 @@ export default class Hub extends EventEmitter {
             skillLaunch: 0,
             timeToSkillLaunch: 0
         }
-        console.log(`@@@@@@@@ renderer: startRecognizer`);
+        // console.log(`@@@@@@@@ renderer: startRecognizer`);
         const speechController: ASRController = new AzureSpeechApiController(this._config);
-        console.log(`@@@@@@@@ renderer: startRecognizer: speechController.RecognizerStart`);
+        // console.log(`@@@@@@@@ renderer: startRecognizer: speechController.RecognizerStart`);
         let t: AsyncToken<ASRResponse> = speechController.RecognizerStart({ recordDuration: 3000 });
     
         t.on('Listening', () => {
@@ -219,7 +231,7 @@ export default class Hub extends EventEmitter {
             //console.log(`renderer: startRecognizer: on Recording_Stopped`);
             this._timeLog.recordingStopped = new Date().getTime();
             this._timeLog.timeToRecordingStopped = this._timeLog.recordingStopped - this._timeLog.timeStart;
-            Hub.Instance().startHotword();
+            // Hub.Instance().startHotword();
         });
     
         t.complete
@@ -229,20 +241,23 @@ export default class Hub extends EventEmitter {
                 Hub.Instance().startNLU(asrResponse.utterance);
             })
             .catch((error: any) => {
-                this.state = HubState.RECOGNIZER_ERROR;
+                this.setState(HubState.RECOGNIZER_ERROR);
                 console.log(error);
+                setImmediate(() => {
+                    Hub.Instance().startHotword();
+                });
             });
     
     }
 
     startHotword() {
-        console.log(`START HOTWORD`);
+        // console.log(`START HOTWORD`);
         if (this._hotwordController) {
-            console.log(`disposing: this._hotwordController`);
+            // console.log(`disposing: this._hotwordController`);
             this._hotwordController.dispose();
             this._hotwordController = undefined;
         }
-        this.state = HubState.HOTWORD;
+        this.setState(HubState.HOTWORD);
         this._hotwordController = new SnowboyController();
         const t: AsyncToken<HotwordResult> = this._hotwordController.RecognizerStart({sampleRate: 16000});
         PixijsManager.Instance().eyeBlink();
@@ -259,19 +274,17 @@ export default class Hub extends EventEmitter {
         t.complete
             .then((result: HotwordResult) => {
                 console.log(`HotWord: result:`, result);
-                console.log(`this.state: ${this.state}`);
+                // console.log(`this.state: ${this.state}`);
                 // process.nextTick(this._startRecognizer);
                 RomManager.Instance().onHotword();
                 this._hotwordController.dispose();
                 this._hotwordController = undefined;
                 t.dispose();
-                if (this.state == HubState.HOTWORD) {
-                    Hub.Instance().startRecognizer();
-                }
+                Hub.Instance().startRecognizer();
             })
             .catch((error: any) => {
                 console.log(error);
-                this.state = HubState.HOTWORD_ERROR;
+                this.setState(HubState.HOTWORD_ERROR);
                 this._hotwordController.dispose();
                 this._hotwordController = undefined;
                 t.dispose();

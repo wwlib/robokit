@@ -1,18 +1,3 @@
-import {
-    AsyncToken,
-    ASRController,
-    ASRResponse,
-    AzureSpeechApiController,
-    NLUController,
-    NLUIntentAndEntities,
-    LUISController,
-    AzureTTSController,
-    HotwordController,
-    HotwordResult,
-} from 'cognitiveserviceslib';
-
-import SnowboyController from './snowboy/SnowboyController';
-import WwMusicController from './ww/WwMusicController';
 import Hub from './skills/Hub';
 import PixijsManager from './pixijs/PixijsManager';
 import RomManager, { RomManagerOptions, RobotInfo } from './rom/RomManager';

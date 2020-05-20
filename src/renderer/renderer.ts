@@ -21,7 +21,7 @@ function addButton(type: string, handler: any): void {
 
     var element = document.createElement("button");
     element.innerText = type;
-    element.style.width = '100px';
+    element.style.width = '120px';
     element.style['border-radius'] = '2px';
     element.style.margin = '1px';
 	element.type = type;
@@ -48,10 +48,11 @@ function startMusic() {
     Hub.Instance().startMusic();
 }
 
-addButton("Speech", startRecognizer);
-addButton("Hotword", startHotword);
-addButton("Force", forceHotword);
-addButton("Music", startMusic);
+
+addButton("startHotword", startHotword);
+addButton("forceHotword", forceHotword);
+// addButton("startRecognizer", startRecognizer);
+// addButton("startMusic", startMusic);
 
 function eyeIdle() {
     PixijsManager.Instance().eyeIdle();

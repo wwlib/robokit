@@ -1,12 +1,23 @@
 import { EventEmitter } from "events";
 import Skill from './Skill';
+import SnowboyController from '../snowboy/SnowboyController';
+import PixijsManager from '../pixijs/PixijsManager';
+import RomManager from '../rom/RomManager';
+import WwMusicController from '../ww/WwMusicController';
+
 import {
     AsyncToken,
+    NLUController,
     NLUIntentAndEntities,
     LUISController,
     TTSController,
     TTSResponse,
-    AzureTTSController
+    AzureTTSController,
+    HotwordController,
+    HotwordResult,
+    ASRController,
+    ASRResponse,
+    AzureSpeechApiController,
 } from 'cognitiveserviceslib';
 import ClockSkill from './ClockSkill';
 import JokeSkill from './JokeSkill';
@@ -16,10 +27,24 @@ export type HubOptions = {
     config: any
 }
 
+export enum HubState {
+    OFF = "OFF",
+    HOTWORD = "HOTWORD",
+    HOTWORD_ERROR = "HOTWORD_ERROR",
+    RECOGNIZER = "RECOGNIZER",
+    RECOGNIZER_ERROR = "RECOGNIZER_ERROR",
+    NLU = "NLU",
+    NLU_ERROR = "NLU_ERROR",
+    LAUNCH = "LAUNCH",
+    LAUNCH_ERROR = "LAUNCH_ERROR",
+    // SKILL = "SKILL"
+}
+
 export default class Hub extends EventEmitter {
 
     private static _instance: Hub;
 
+    public state: HubState;
     public skillMap: Map<string, Skill | undefined>;
     public launchIntentMap: Map<string, Skill | undefined>;
     public luisController: LUISController;
@@ -29,9 +54,21 @@ export default class Hub extends EventEmitter {
     public audioContext: AudioContext;
 
     private _config: any;
+    private _timeLog = {
+        timeStart: 0,
+        recordingStopped: 0,
+        timeToRecordingStopped: 0,
+        recognitionEnded: 0,
+        timeToRecognitionEnded: 0,
+        skillLaunch: 0,
+        timeToSkillLaunch: 0
+    }
+    private _musicController: WwMusicController;
+    private _hotwordController: HotwordController;
 
     constructor(options?: HubOptions) {
-        super();
+        super ();
+        // console.log(`HUB: CONSTRUCTOR!!`);
         this.skillMap = new Map<string, Skill>();
         this.launchIntentMap = new Map<string, Skill>();
         this.audioContext = new AudioContext();
@@ -44,10 +81,17 @@ export default class Hub extends EventEmitter {
         this.previousTickTime = this.startTickTime;
         // TODO
         // this.tickInterval = setInterval(this.tick.bind(this), 1000);
+        this.setState(HubState.OFF);
     }
 
     static Instance(options?: HubOptions) {
         return this._instance || (this._instance = new this(options));
+    }
+
+    init(): void {
+        setImmediate(() => {
+            Hub.Instance().startHotword();
+        });
     }
 
     tick(): void {
@@ -59,6 +103,12 @@ export default class Hub extends EventEmitter {
                 skill.tick(frameTime, elapsedTime);
             }
         });
+    }
+
+    setState(state: HubState) {
+        const currentState: HubState = this.state;
+        this.state = state;
+        console.log(`Hub: setState: ${currentState} -> ${this.state}`);
     }
 
 
@@ -74,12 +124,16 @@ export default class Hub extends EventEmitter {
     }
 
     handleLaunchIntent(intentAndEntities: NLUIntentAndEntities, utterance: string): void {
+        this.setState(HubState.LAUNCH);
         let launchIntent = intentAndEntities.intent;
         let skill: Skill | undefined = this.launchIntentMap.get(launchIntent);
         if (skill) {
             skill.launch(intentAndEntities, utterance);
             skill.running = true;
         }
+        setImmediate(() => {
+            Hub.Instance().startHotword();
+        });
     }
 
     startTTS(prompt: string) {
@@ -112,9 +166,138 @@ export default class Hub extends EventEmitter {
             .then((ttsResponse: TTSResponse) => {
                 // console.log(`SYNTHESIS RESULT: ${ttsResponse.buffer}`);
                 console.log(`Hub: startTTS: timeLog:`, JSON.stringify(timeLog, null, 2));
+                t.dispose();
             })
             .catch((error: any) => {
                 console.log(error);
+                t.dispose();
             });
+    }
+
+    startNLU(utterance: string) {
+        this.setState(HubState.NLU);
+        const nluController: NLUController = new LUISController(this._config);
+    
+        let t: AsyncToken<NLUIntentAndEntities> = nluController.getIntentAndEntities(utterance);
+    
+        t.complete
+            .then((intentAndEntities: NLUIntentAndEntities) => {
+                this._timeLog.skillLaunch = new Date().getTime();
+                this._timeLog.timeToSkillLaunch = this._timeLog.skillLaunch - this._timeLog.timeStart;
+                console.log(`NLUIntentAndEntities: `, intentAndEntities);
+                console.log(`timeLog:`, JSON.stringify(this._timeLog, null, 2));
+                RomManager.Instance().onNLU(intentAndEntities, utterance);
+                Hub.Instance().handleLaunchIntent(intentAndEntities, utterance);
+                t.dispose();
+            })
+            .catch((error: any) => {
+                this.setState(HubState.NLU_ERROR);
+                console.log(error);
+                t.dispose();
+                setImmediate(() => {
+                    Hub.Instance().startHotword();
+                });
+            });
+    }
+   
+    startRecognizer() {
+        this.setState(HubState.RECOGNIZER);
+        PixijsManager.Instance().eyeShowHighlight();
+        this._timeLog = {
+            timeStart: new Date().getTime(),
+            recordingStopped: 0,
+            timeToRecordingStopped: 0,
+            recognitionEnded: 0,
+            timeToRecognitionEnded: 0,
+            skillLaunch: 0,
+            timeToSkillLaunch: 0
+        }
+        // console.log(`@@@@@@@@ renderer: startRecognizer`);
+        const speechController: ASRController = new AzureSpeechApiController(this._config);
+        // console.log(`@@@@@@@@ renderer: startRecognizer: speechController.RecognizerStart`);
+        let t: AsyncToken<ASRResponse> = speechController.RecognizerStart({ recordDuration: 3000 });
+    
+        t.on('Listening', () => {
+            //console.log(`renderer: startRecognizer: on Listening`);
+        });
+    
+        t.on('RecognitionEndedEvent', () => {
+            //console.log(`renderer: startRecognizer: on RecognitionEndedEvent`);
+            this._timeLog.recognitionEnded = new Date().getTime();
+            this._timeLog.timeToRecognitionEnded = this._timeLog.recognitionEnded - this._timeLog.timeStart;
+        });
+    
+        t.on('Recording_Stopped', () => {
+            //console.log(`renderer: startRecognizer: on Recording_Stopped`);
+            this._timeLog.recordingStopped = new Date().getTime();
+            this._timeLog.timeToRecordingStopped = this._timeLog.recordingStopped - this._timeLog.timeStart;
+            // Hub.Instance().startHotword();
+        });
+    
+        t.complete
+            .then((asrResponse: ASRResponse) => {
+                console.log(`Utterance: ${asrResponse.utterance}`);
+                RomManager.Instance().onUtterance(asrResponse.utterance);
+                Hub.Instance().startNLU(asrResponse.utterance);
+            })
+            .catch((error: any) => {
+                this.setState(HubState.RECOGNIZER_ERROR);
+                console.log(error);
+                setImmediate(() => {
+                    Hub.Instance().startHotword();
+                });
+            });
+    
+    }
+
+    startHotword() {
+        // console.log(`START HOTWORD`);
+        if (this._hotwordController) {
+            // console.log(`disposing: this._hotwordController`);
+            this._hotwordController.dispose();
+            this._hotwordController = undefined;
+        }
+        this.setState(HubState.HOTWORD);
+        this._hotwordController = new SnowboyController();
+        const t: AsyncToken<HotwordResult> = this._hotwordController.RecognizerStart({sampleRate: 16000});
+        PixijsManager.Instance().eyeBlink();
+        PixijsManager.Instance().eyeShowHighlight(false);
+    
+        t.once('Listening', () => {
+            console.log(`renderer: startHotword: on Listening`);
+        });
+    
+        // t.once('hotword', () => {
+        //     //console.log(`renderer: startHotword: on hotword: `, eyeInstance);
+        // });
+    
+        t.complete
+            .then((result: HotwordResult) => {
+                console.log(`HotWord: result:`, result);
+                // console.log(`this.state: ${this.state}`);
+                // process.nextTick(this._startRecognizer);
+                RomManager.Instance().onHotword();
+                this._hotwordController.dispose();
+                this._hotwordController = undefined;
+                t.dispose();
+                Hub.Instance().startRecognizer();
+            })
+            .catch((error: any) => {
+                console.log(error);
+                this.setState(HubState.HOTWORD_ERROR);
+                this._hotwordController.dispose();
+                this._hotwordController = undefined;
+                t.dispose();
+            });
+    }
+
+    forceHotword() {
+        if (this._hotwordController) {
+            this._hotwordController.force();
+        }
+    }
+
+    startMusic() {
+        this._musicController = new WwMusicController();
     }
 }

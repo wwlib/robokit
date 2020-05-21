@@ -25,7 +25,7 @@ export default class SocketServer extends EventEmitter {
     public onMessageHandler: any;
     public namedConnections: Map<string, WebSocket>;
 
-    constructor(port: number = 9696) {
+    constructor(port: number = 7160) { // 9696
         super();
         this.port = port;
         this.host = ip.address();
@@ -57,7 +57,7 @@ export default class SocketServer extends EventEmitter {
         }, processRequest ).listen( cfg.port );
 
 
-        console.log(`SocketServer: starting server: port ${this.port}`);
+        console.log(`SocketServer: starting server: host: ${this.host}, port ${this.port}`);
         this.socketServer = new WebSocket.Server({
             server: app,
         });
@@ -99,14 +99,14 @@ export default class SocketServer extends EventEmitter {
     }
 
     onMessage(message: any, socket: WebSocket): void {
-        console.log(`SocketServer: onMessage:`, message);
+        // console.log(`SocketServer: onMessage:`, message);
         if (message.type == 'handshake') {
             console.log(`SocketServer: Received handshake from: ${message.client}`);
             const messagePayload: any = message.payload;
             this.namedConnections.set(messagePayload.client, socket);
             let currentTime: number = new Date().getTime();
             let responseMessage: Message = {
-                client: 'robokit',
+                client: `robokit-${this.host}-${this.port}`,
                 id: -1,
                 type: 'handshake',
                 sendTime: currentTime,
@@ -188,6 +188,8 @@ export default class SocketServer extends EventEmitter {
     }
 
     broadcastMessage(message: any): void {
+        console.log(`SocketServer: broadcastMessage:`, message, this.connections);
+        // console.trace();
         this.connections.forEach((socket: WebSocket) => {
             if (socket.readyState === WebSocket.OPEN) {
               //socket.send(message);
@@ -211,7 +213,7 @@ export default class SocketServer extends EventEmitter {
         this.connections = null;
 
         this.socketServer.close(() => {
-            this.socketServer.removeAllListeners;
+            this.socketServer.removeAllListeners();
             this.socketServer = null;
         });
         this.onConnectionHandler = null;

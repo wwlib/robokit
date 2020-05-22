@@ -1,0 +1,217 @@
+
+> LUIS application information
+> !# @app.name = robokit
+> !# @app.versionId = 0.1
+> !# @app.culture = en-us
+> !# @app.luis_schema_version = 3.0.0
+
+
+> # Intent definitions
+
+## answerNo
+- negative
+- no
+- no way
+- nope
+
+
+## answerYes
+- affirmative
+- i sure do
+- i sure will
+- sure
+- that's right
+- yes
+- yes definitely
+- yes i do
+- yes i will
+- you bet
+- yup
+
+
+## gameCommand
+- east
+- i would like to continue
+- i would like to equip the sword
+- let's equip my sword
+- let's exit
+- let's open the chest
+
+
+## launchClock
+- check the time
+- tell me the time
+- tell me what time it is
+- what time is it
+- what's the time
+
+
+## launchDoYouLike
+- are you a fan of whales?
+- do you like animals
+- do you like cheese?
+- do you love armadillos
+
+
+## launchFavoriteRobot
+- do you like any robots?
+- do you like robots?
+- favorite robot
+- what robots do you like
+- who is your favorite robot?
+
+
+## launchGame
+- let's play a game
+- let's play the game
+- play a game
+- play the game
+
+
+## launchGameInventory
+- check my game inventory
+- check my inventory
+- tell me what's in my game inventory
+- what do i have in my inventory
+- what's in my game inventory
+
+
+## launchItsMe
+- i am lilly
+- i'm grace
+- it is me alexis
+- it's me andrew
+- this is finlay
+
+
+## launchJoke
+- do you know any jokes
+- say something funny
+- tell me a joke
+- tell me something funny
+- tell us a joke
+
+
+## launchUserLikes
+- andrew likes cheese
+- andrew really likes whales
+- jeri loves penguins
+
+
+## None
+
+
+> # Entity definitions
+
+
+> # PREBUILT Entity definitions
+
+
+> # Phrase list definitions
+
+
+> # List entities
+
+@ list gameCommandList hasRole command = 
+	- continue :
+		- go
+	- quit :
+	- equip :
+	- fight :
+	- run :
+	- north :
+	- south :
+	- east :
+		- exit
+	- west :
+	- close :
+	- enter :
+	- open :
+
+
+@ list gameObject hasRole object = 
+	- sword :
+	- door :
+	- chest :
+
+
+@ list thing = 
+	- Whale :
+		- whale
+		- whales
+	- Insect :
+		- insect
+		- insects
+	- Chicken :
+		- chicken
+		- chickens
+	- Flamingo :
+		- flamingo
+		- flamingos
+	- Animal :
+		- animal
+		- animals
+	- Armadillo :
+		- armadillo
+		- armadillos
+	- Bat :
+		- bat
+		- bats
+	- Penguin :
+		- penguin
+		- penguins
+	- Bird :
+		- bird
+		- birds
+	- Breakfast :
+		- breakfast
+		- breakfasts
+	- Monkey :
+		- monkey
+		- monkeys
+	- Zebra :
+		- zebra
+		- zebras
+	- Albatros :
+		- albatros
+		- albatroses
+	- Mammal :
+		- mammal
+		- mammals
+	- Vertebrate :
+		- vertebrate
+		- vertebrates
+	- Cheese :
+		- cheese
+		- cheeses
+	- Butterfly :
+		- butterfly
+		- butterflies
+	- Invertebrate :
+		- invertebrate
+		- invertebrates
+	- Fly :
+		- fly
+		- flies
+
+
+@ list user = 
+	- Jeri :
+	- Andrew :
+	- Jonathan :
+	- Siggi :
+	- Cynthia :
+	- Alexis :
+	- Lilly :
+		- Lily
+	- Estella :
+		- Stella
+	- Finlay :
+		- Finland
+	- Grace :
+	- Sam :
+
+
+> # RegEx entities
+
+

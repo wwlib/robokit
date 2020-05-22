@@ -20,7 +20,7 @@ see also: [https://github.com/wwlib/robocommander](https://github.com/wwlib/robo
 - duplicate `data/config-example.json` and rename it `config.json`  
 - add your Azure subscription key
 - add your LUIS credentials
-- (optional) upload `docs/LUIS-knowledge-graph.json` to LUIS to configure a new NLU app
+- (optional) upload `docs/luis-robokit.json` to LUIS to configure a new NLU app
 
 #### Building
 

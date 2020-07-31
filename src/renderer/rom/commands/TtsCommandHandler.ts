@@ -1,6 +1,7 @@
 import { CommandHandler } from './CommandHandler';
 import Log from '../../utils/Log';
 import Hub from '../../skills/Hub';
+import PixijsManager from '../../pixijs/PixijsManager';
 
 export default class TtsCommandHandler extends CommandHandler {
 
@@ -40,6 +41,7 @@ export default class TtsCommandHandler extends CommandHandler {
 
     handleCommand(): void {
         this.log.info(`handleCommand`);
+        PixijsManager.Instance().eyeBlink();
         Hub.Instance().startTTS(this.text);
         this.onCompleted();
     }
